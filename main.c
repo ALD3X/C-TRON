@@ -1,9 +1,9 @@
 // main.c
 
 #include <stdio.h>
-#include "map.h"
-#include "player.h"
-#include "elements.h"
+#include "./modele/map.h"
+#include "./modele/player.h"
+#include "./modele/elements.h"
 
 int main() {
     Map map;
@@ -28,16 +28,16 @@ int main() {
     MovePlayer(&player2,&map,LEFT);
     MovePlayer(&player2,&map,LEFT);
     MovePlayer(&player2,&map,LEFT);
-     MovePlayer(&player2,&map,LEFT);
-      MovePlayer(&player2,&map,LEFT);
-       MovePlayer(&player2,&map,LEFT);
-        MovePlayer(&player2,&map,LEFT);
-        MovePlayer(&player2,&map,LEFT);
     MovePlayer(&player2,&map,LEFT);
     MovePlayer(&player2,&map,LEFT);
     MovePlayer(&player2,&map,LEFT);
-     MovePlayer(&player2,&map,LEFT);
-      MovePlayer(&player2,&map,LEFT);
+    MovePlayer(&player2,&map,LEFT);
+    MovePlayer(&player2,&map,LEFT);
+    MovePlayer(&player2,&map,LEFT);
+    MovePlayer(&player2,&map,LEFT);
+    MovePlayer(&player2,&map,LEFT);
+    MovePlayer(&player2,&map,LEFT);
+    MovePlayer(&player2,&map,LEFT);
 
     while (player2.isAlive)
     {
