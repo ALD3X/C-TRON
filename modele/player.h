@@ -3,15 +3,23 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include "map.h"
+#include "elements.h"
+
+#define MAX_ATTEMPTS 100
+
 
 typedef struct 
 {
-    int x ; // Position X du joueur
-    int y ; // Position Y du joueur
-    int id ; // id du joueur 
-    int isAlive ; // Etat du joueur (1: vivant, 0: mort)
-}Player;
+    int x;       // Position X du joueur
+    int y;       // Position Y du joueur
+    int id;      // ID du joueur 
+    int score;   // Score du joueur
+    int isAlive; // État du joueur (1: vivant, 0: mort)
+} Player;
 
 // Enum pour les directions
 typedef enum {
@@ -21,12 +29,31 @@ typedef enum {
     LEFT   
 } Direction;
 
+typedef enum {
+    GAME_ONGOING,
+    PLAYER1_WON,
+    PLAYER2_WON,
+} GameState;
 
-void InitPlayer(Player *player, Map *map,int x, int y, int id);
-void MovePlayer(Player *player, Map *map, Direction direction);
-int CrashTest(Map *map, int x, int y);
-int IsCoordValide(int x, int y);
-void CreateLigne(Map *map, Player *player, int x, int y);
-void SpawnPlayers(Player *player1, Player *player2, Map *map);
+// Fonctions pour les joueurs
+void CheckPointer(void *ptr, const char *errorMessage);
+void resetPLayerlive(Player *player);
+void InitializePlayer(Player *player, int id);
+GameState CheckGameState(const Player *player1, const Player *player2);
+int CheckCollision(Map *map, int x, int y);
+int IsCoordinateValid(int x, int y);
+void AddPlayerScore(Player *player);
+int GetPlayerScore(const Player *player);
+
+void MovePlayerInDirection(Player *player, Map *map, Direction direction);
+void CalculateNewPosition(Direction direction, int *x, int *y);
+void RecordPlayerPath(Map *map, Player *player);
+void UpdatePlayerPosition(Player *player, Map *map, int newX, int newY);
+void HandlePlayerCollision(Player *player);
+
+int GenerateValidCoordinates(int *x, int *y, Map *map);
+void SpawnTwoPlayers(Player *player1, Player *player2, Map *map);
+
+
 
 #endif // PLAYER_H
