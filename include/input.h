@@ -9,6 +9,7 @@
 #include "player.h"
 #include "map.h"
 #include "utils.h"
+#include <ncurses.h>
 
 // Fonction pour gérer les entrées du joueur
 void HandlePlayerInputNcurses(Player *player1, Player *player2, Map *map);

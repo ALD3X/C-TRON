@@ -3,7 +3,7 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include <stdlib.h> // Ajoute ceci en haut de map.c
+#include <stdlib.h> 
 #include <stdio.h>
 #include "elements.h"
 #include "utils.h"

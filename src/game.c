@@ -17,7 +17,7 @@ void AddPlayerScore(Player *player) {
 }
 
 // Fonction pour réinitialiser la vie d'un joueur
-void ResetPlayerLive(Player *player) { // Attention à la faute de frappe
+void ResetPlayerLive(Player *player) { 
     CheckPointer(player, "Pointeur du joueur invalide.");
     player->isAlive = 1;
 }
@@ -30,13 +30,10 @@ int GetPlayerScore(const Player *player) {
 
 // Reset map 
 void RestartGame(Player *player1, Player *player2, Map *map) {
-    CheckPointer(player1, "Informations du joueur 1 invalides.");
-    CheckPointer(player2, "Informations du joueur 2 invalides.");
-    CheckPointer(map, "La carte est invalide.");
-    CheckPointer(map->Grille, "La grille de la carte est invalide.");
+    CheckALL(2, map, player1, player2);
 
-    ResetPlayerLive(player1); // Assurez-vous que cette fonction existe
-    ResetPlayerLive(player2); // Assurez-vous que cette fonction existe
-    ResetMap(map); // Assurez-vous que cette fonction existe
-    SpawnTwoPlayers(player1, player2, map); // Assurez-vous que cette fonction existe
+    ResetPlayerLive(player1);
+    ResetPlayerLive(player2); 
+    ResetMap(map); 
+    SpawnTwoPlayers(player1, player2, map); 
 }

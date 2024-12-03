@@ -5,22 +5,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <time.h>
+
 #include "map.h"
 #include "elements.h"
 #include "utils.h"
 
 #define MAX_ATTEMPTS 100
-
-
-typedef struct 
-{
-    int x;       // Position X du joueur
-    int y;       // Position Y du joueur
-    int id;      // ID du joueur 
-    int score;   // Score du joueur
-    int isAlive; // État du joueur (1: vivant, 0: mort)
-} Player;
 
 // Enum pour les directions
 typedef enum {
@@ -30,6 +22,18 @@ typedef enum {
     LEFT   
 } Direction;
 
+typedef struct 
+{
+    int x;       // Position X du joueur
+    int y;       // Position Y du joueur
+    int id;      // ID du joueur 
+    int score;   // Score du joueur
+    int isAlive; // État du joueur (1: vivant, 0: mort)
+    Direction direction ;
+    int vitesse ; 
+    clock_t lastMoveTime;
+} Player;
+
 
 // Fonctions pour les joueurs
 void InitializePlayer(Player *player, int id);
@@ -38,7 +42,9 @@ int IsCoordinateValid(int x, int y);
 
 int GetPlayerScore(const Player *player);
 
-void MovePlayerInDirection(Player *player, Map *map, Direction direction);
+void MovePlayerInDirection(Player *player, Map *map);
+void switchPlayerDirection(Player *player, Direction direction_);
+void UpdatePlayerMovement(Player *player, Map *map);
 void CalculateNewPosition(Direction direction, int *x, int *y);
 void RecordPlayerPath(Map *map, Player *player);
 void UpdatePlayerPosition(Player *player, Map *map, int newX, int newY);

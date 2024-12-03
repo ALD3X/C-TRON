@@ -6,9 +6,10 @@
 #include <stdio.h>     // Pour printf, fprintf, etc.
 #include <stdlib.h>    // Pour exit, malloc, etc.
 #include "game.h"      // Pour les définitions de GameState et des prototypes de fonction
+#include "utils.h"     // Pour CheckPointer, si nécessaire
 #include "player.h"    // Pour la définition de la structure Player
 #include "map.h"       // Pour la définition de la structure Map
-#include "utils.h"     // Pour CheckPointer, si nécessaire
+
 
 // Énumération pour les états du jeu
 typedef enum {

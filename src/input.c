@@ -2,46 +2,45 @@
 
 // Fonction pour gérer les entrées des joueurs
 void HandlePlayerInputNcurses(Player *player1, Player *player2, Map *map) {
-    CheckPointer(player1, "Informations du joueur 1 invalides.");
-    CheckPointer(player2, "Informations du joueur 2 invalides.");
-    CheckPointer(map, "La carte est invalide.");
-    CheckPointer(map->Grille, "La grille de la carte est invalide.");
+    CheckALL(2, map, player1, player2);
 
-    int input = getch(); // Lire un caractère
+    int input = getch(); 
 
     // Gestion des entrées pour le joueur 1
     switch (input) {
         case 'z': // Haut
-            MovePlayerInDirection(player1, map, TOP);
+            switchPlayerDirection(player1, TOP);
             break;
         case 's': // Bas
-            MovePlayerInDirection(player1, map, DOWN);
+            switchPlayerDirection(player1, DOWN);
             break;
         case 'q': // Gauche
-            MovePlayerInDirection(player1, map, LEFT);
+            switchPlayerDirection(player1, LEFT);
             break;
         case 'd': // Droite
-            MovePlayerInDirection(player1, map, RIGHT);
+            switchPlayerDirection(player1, RIGHT);
             break;
+        default:
+            break; // Ignorer les autres entrées
     }
 
     // Gestion des entrées pour le joueur 2
     switch (input) {
         case KEY_UP: // Flèche Haut
-            MovePlayerInDirection(player2, map, TOP);
+            switchPlayerDirection(player2, TOP);
             break;
         case KEY_DOWN: // Flèche Bas
-            MovePlayerInDirection(player2, map, DOWN);
+            switchPlayerDirection(player2, DOWN);
             break;
         case KEY_LEFT: // Flèche Gauche
-            MovePlayerInDirection(player2, map, LEFT);
+            switchPlayerDirection(player2, LEFT);
             break;
         case KEY_RIGHT: // Flèche Droite
-            MovePlayerInDirection(player2, map, RIGHT);
+            switchPlayerDirection(player2, RIGHT);
             break;
         case 'e': // Quitter le jeu
-            printf("Jeu quitte.\n");
-            exit(0); // Sortie du programme
+            endwin();
+            exit(0);
         default:
             break; // Ignorer les autres entrées
     }
@@ -50,10 +49,7 @@ void HandlePlayerInputNcurses(Player *player1, Player *player2, Map *map) {
 
 
 void HandlePlayerInputSDL(Player *player1, Player *player2, Map *map) {
-    CheckPointer(player1, "Informations du joueur 1 invalides.");
-    CheckPointer(player2, "Informations du joueur 2 invalides.");
-    CheckPointer(map, "La carte est invalide.");
-    CheckPointer(map->Grille, "La grille de la carte est invalide.");
+    CheckALL(2, map, player1, player2);
 
     SDL_Event event;
 
@@ -69,32 +65,34 @@ void HandlePlayerInputSDL(Player *player1, Player *player2, Map *map) {
             // Gestion des entrées pour le joueur 1
             switch (event.key.keysym.sym) {
                 case SDLK_z: // Haut
-                    MovePlayerInDirection(player1, map, TOP);
+                    switchPlayerDirection(player1, TOP);
                     break;
                 case SDLK_s: // Bas
-                    MovePlayerInDirection(player1, map, DOWN);
+                    switchPlayerDirection(player1, DOWN);
                     break;
                 case SDLK_q: // Gauche
-                    MovePlayerInDirection(player1, map, LEFT);
+                    switchPlayerDirection(player1, LEFT);
                     break;
                 case SDLK_d: // Droite
-                    MovePlayerInDirection(player1, map, RIGHT);
+                    switchPlayerDirection(player1, RIGHT);
                     break;
+                default:
+                    break; // Ignorer les autres entrées
             }
 
             // Gestion des entrées pour le joueur 2
             switch (event.key.keysym.sym) {
                 case SDLK_UP: // Flèche Haut
-                    MovePlayerInDirection(player2, map, TOP);
+                    switchPlayerDirection(player2, TOP);
                     break;
                 case SDLK_DOWN: // Flèche Bas
-                    MovePlayerInDirection(player2, map, DOWN);
+                    switchPlayerDirection(player2, DOWN);
                     break;
                 case SDLK_LEFT: // Flèche Gauche
-                    MovePlayerInDirection(player2, map, LEFT);
+                    switchPlayerDirection(player2, LEFT);
                     break;
                 case SDLK_RIGHT: // Flèche Droite
-                    MovePlayerInDirection(player2, map, RIGHT);
+                    switchPlayerDirection(player2, RIGHT);
                     break;
                 case SDLK_e: // Quitter le jeu
                     printf("Jeu quitte.\n");

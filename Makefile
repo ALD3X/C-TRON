@@ -1,8 +1,9 @@
 # Définition des variables
 CC = gcc
 CFLAGS = -Iinclude -Wall -g
-SDL_FLAGS = `sdl2-config --cflags --libs` 
+SDL_FLAGS = `sdl2-config --cflags --libs`
 NCURSES_FLAGS = -lncurses
+SDL_TTF_FLAGS = -lSDL2_ttf  # Ajouter cette ligne pour la bibliothèque SDL_ttf
 
 # Répertoires
 SRC_DIR = src
@@ -21,7 +22,7 @@ all: $(TARGET)
 
 # Règle pour créer l'exécutable
 $(TARGET): $(OBJ)
-	$(CC) -o $@ $^ $(SDL_FLAGS) $(NCURSES_FLAGS)
+	$(CC) -o $@ $^ $(SDL_FLAGS) $(NCURSES_FLAGS) $(SDL_TTF_FLAGS)  # Ajouter SDL_TTF_FLAGS ici
 
 # Règle pour créer les fichiers objets
 $(SRC_DIR)/%.o: $(SRC_DIR)/%.c

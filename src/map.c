@@ -5,8 +5,7 @@
 // Initialiser la carte
 void InitializeMap(Map *map) {
 
-    CheckPointer(map, "La carte est invalide.");
-    CheckPointer(map->Grille, "La grille de la carte est invalide.");
+    CheckMap(map);
 
     for (int i = 0; i < Rows; i++) {
         for (int j = 0; j < Cols; j++) {
@@ -19,18 +18,14 @@ void InitializeMap(Map *map) {
 // Réinitialiser la carte
 void ResetMap(Map *map) {
 
-    CheckPointer(map, "La carte est invalide.");
-    CheckPointer(map->Grille, "La grille de la carte est invalide.");
-
+    CheckMap(map);
     InitializeMap(map);
 } // ResetMap
 
 // Creer une ligne derrière le joueur
 void DrawLineOnMap(Map *map, int id, int x, int y) {
 
-    CheckPointer(map, "La carte est invalide.");
-    CheckPointer(map->Grille, "La grille de la carte est invalide.");
-
+    CheckMap(map);
     map->Grille[x][y] = id * 2; // Dessiner la ligne
 } // DrawLineOnMap
 
