@@ -1,19 +1,26 @@
-// display.c
+#include "../include/game.h"
+#include "../include/display.h"
+#include "../include/map.h"
+#include "../include/player.h"
+#include <stdlib.h>
+#include <stdio.h>
 
-#include "display.h"
+// ==============================
+// Section: Initialisation et terminaison de l'affichage
+// ==============================
 
 // Fonction d'initialisation de l'affichage
 void InitDisplay(DisplayContext *display) {
     switch (display->type) {
         case DISPLAY_NCURSES:
-            InitNcurses(); // Initialiser ncurses
+            InitNcurses();
+            DisplayMenuNcurses();
             break;
         case DISPLAY_SDL:
-            if (!InitSDL(display)) { // Initialiser SDL
+            if (!InitSDL(display)) {
                 fprintf(stderr, "Erreur lors de l'initialisation de SDL.\n");
                 exit(EXIT_FAILURE);
             }
-            displayCountdownSDL(display->renderer);
             break;
     }
 }
@@ -22,23 +29,27 @@ void InitDisplay(DisplayContext *display) {
 void EndDisplay(DisplayContext *display) {
     switch (display->type) {
         case DISPLAY_NCURSES:
-            EndNcurses(); // Terminer ncurses
+            EndNcurses();
             break;
         case DISPLAY_SDL:
-            EndSDL(display); // Terminer SDL
+            EndSDL(display);
             break;
     }
 }
+
+// ==============================
+// Section: Fonctions de dessin de la carte
+// ==============================
 
 // Fonction pour dessiner la carte
 void DrawMap(DisplayContext *display, Map *map) {
     switch (display->type) {
         case DISPLAY_NCURSES:
-            DrawNcurses(display, map); // Dessiner avec ncurses
+            DrawNcurses(display, map);
             break;
         case DISPLAY_SDL:
-            DrawSDL(display->renderer, map, Rows, Cols); // Dessiner avec SDL
-            SDL_RenderPresent(display->renderer); // Mettre à jour l'affichage
+            DrawSDL(display->renderer, map, Rows, Cols);
+            SDL_RenderPresent(display->renderer);
             break;
     }
 }

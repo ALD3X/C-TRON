@@ -1,17 +1,28 @@
-#include "display.h"
+#include "../include/game.h"
+#include "../include/display.h"
+#include "../include/elements.h"
+#include "../include/utils.h"
 
-// Dimensions de la fenêtre
-const int WINDOW_WIDTH = 1000;  // Largeur de la fenêtre
-const int WINDOW_HEIGHT = 800;  // Hauteur de la fenêtre
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+const int WINDOW_WIDTH = 1000;
+const int WINDOW_HEIGHT = 800;
+
+// ==============================
+// Section: Initialisation et terminaison de SDL
+// ==============================
+
 
 // Fonction pour initialiser SDL
 bool InitSDL(DisplayContext *display) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        fprintf(stderr, "Erreur d'initialisation de SDL : %s\n", SDL_GetError());
-        return false;
+        CheckSDLError(__LINE__);
     }
 
-    // Création de la fenêtre
     display->window = SDL_CreateWindow(
         "Tron Game", 
         SDL_WINDOWPOS_UNDEFINED, 
@@ -22,24 +33,16 @@ bool InitSDL(DisplayContext *display) {
     );
 
     if (display->window == NULL) {
-        fprintf(stderr, "Erreur de création de la fenêtre : %s\n", SDL_GetError());
-        SDL_Quit();
-        return false;
+        CheckSDLError(__LINE__);
     }
 
-    // Création du renderer
     display->renderer = SDL_CreateRenderer(display->window, -1, SDL_RENDERER_ACCELERATED);
     if (display->renderer == NULL) {
-        fprintf(stderr, "Erreur de création du renderer : %s\n", SDL_GetError());
-        SDL_DestroyWindow(display->window);
-        SDL_Quit();
-        return false;
+        CheckSDLError(__LINE__);
     }
 
-    // Initialiser SDL_ttf
     if (TTF_Init() == -1) {
-        fprintf(stderr, "Erreur d'initialisation de SDL_ttf : %s\n", TTF_GetError());
-        return false;
+        CheckTTFError(__LINE__);
     }
 
     return true;
@@ -57,22 +60,31 @@ void EndSDL(DisplayContext *display) {
         display->window = NULL;
     }
 
-    // Terminer SDL_ttf
     TTF_Quit();
     SDL_Quit();
 }
+
+// ==============================
+// Section: Fonctions d'affichage de texte
+// ==============================
 
 // Fonction pour afficher du texte avec SDL_ttf
 void renderText(SDL_Renderer *renderer, const char* text, int x, int y) {
     TTF_Font *font = TTF_OpenFont("assets/Fonts/Monas-BLBW8.ttf", 72);
     if (font == NULL) {
-        fprintf(stderr, "Erreur lors de l'ouverture de la police : %s\n", TTF_GetError());
-        exit(1);
+        CheckTTFError(__LINE__);
     }
 
     SDL_Color color = {255, 255, 255};
     SDL_Surface *surface = TTF_RenderText_Solid(font, text, color);
+    if (surface == NULL) {
+        CheckTTFError(__LINE__);
+    }
+
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (texture == NULL) {
+        CheckSDLError(__LINE__);
+    }
 
     SDL_Rect rect = {x - surface->w / 2, y - surface->h / 2, surface->w, surface->h};
     SDL_RenderCopy(renderer, texture, NULL, &rect);
@@ -82,7 +94,11 @@ void renderText(SDL_Renderer *renderer, const char* text, int x, int y) {
     TTF_CloseFont(font);
 }
 
-// Fonction pour afficher un compte à rebours
+// ==============================
+// Section: Fonctions d'affichage de compte a rebours et de score
+// ==============================
+
+// Fonction pour afficher un compte a rebours
 void displayCountdownSDL(SDL_Renderer *renderer) {
     char countdown[3];
 
@@ -102,6 +118,23 @@ void displayCountdownSDL(SDL_Renderer *renderer) {
     SDL_Delay(1000);
 }
 
+// Fonction pour afficher le score
+void displayScore(SDL_Renderer *renderer, Player *player1, Player *player2) {
+    char scoreText[50];
+    sprintf(scoreText, "Joueur 1 [ %d ] - [ %d ] Joueur 2", GetPlayerScore(player1), GetPlayerScore(player2));
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+    renderText(renderer, "Score des Joueurs", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 200);
+    renderText(renderer, scoreText, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+    SDL_RenderPresent(renderer);
+    SDL_Delay(2500);
+}
+
+// ==============================
+// Section: Fonctions de dessin de la carte
+// ==============================
+
 // Fonction pour dessiner une cellule
 void DrawCell(SDL_Renderer* renderer, int i, int j, int cellWidth, int cellHeight, int cellType) {
     SDL_Color color = GetCellColor(cellType);
@@ -113,13 +146,13 @@ void DrawCell(SDL_Renderer* renderer, int i, int j, int cellWidth, int cellHeigh
 // Fonction pour obtenir la couleur d'une cellule
 SDL_Color GetCellColor(int cellType) {
     switch (cellType) {
-        case VIDE: return (SDL_Color){249, 235, 234};
-        case MUR: return (SDL_Color){171, 178, 185};
-        case JOUEUR_1: return (SDL_Color){142, 68, 173};
-        case JOUEUR_2: return (SDL_Color){22, 160, 133};
-        case LIGNE_JOUEUR_1: return (SDL_Color){210, 180, 222};
-        case LIGNE_JOUEUR_2: return (SDL_Color){163, 228, 215};
-        default: return (SDL_Color){128, 128, 128}; // Gris
+        case VIDE: return (SDL_Color){255, 255, 255, 255}; // Blanc
+        case MUR: return (SDL_Color){0, 0, 0, 255}; // Noir
+        case JOUEUR_1: return (SDL_Color){0, 0, 255, 255}; // Bleu pour Joueur 1
+        case JOUEUR_2: return (SDL_Color){255, 0, 0, 255}; // Rouge pour Joueur 2
+        case LIGNE_JOUEUR_1: return (SDL_Color){0, 255, 255, 255}; // Cyan pour la ligne du Joueur 1
+        case LIGNE_JOUEUR_2: return (SDL_Color){255, 255, 0, 255}; // Jaune pour la ligne du Joueur 2
+        default: return (SDL_Color){128, 128, 128, 255}; // Gris par défaut
     }
 }
 
@@ -135,60 +168,232 @@ void DrawSDL(SDL_Renderer* renderer, Map *map, int rows, int cols) {
     }
 }
 
-void displayEndScreen(SDL_Renderer *renderer, GameState gameState) {
-    const char* winnerText;
-    if (gameState == PLAYER1_WON) {
-        winnerText = "Joueur 1 a gagne !";
-    } else if (gameState == PLAYER2_WON) {
-        winnerText = "Joueur 2 a gagne !";
-    } else {
-        winnerText = "Match nul !";
-    }
+// ==============================
+// Section: Affichage et gestion de l'ecran de fin
+// ==============================
 
-    // Effacer l'écran
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir
+// Fonction pour afficher l'ecran de fin
+void displayEndScreen(SDL_Renderer *renderer, GameState gameState, Player *player1, Player *player2) {
+    const char* winnerText;
+    if (gameState == PLAYER1_WON) winnerText = "Joueur 1 a gagne !";
+    if (gameState == PLAYER2_WON) winnerText = "Joueur 2 a gagne !";
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    // Afficher le texte de victoire au centre
-    renderText(renderer, winnerText, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 100);
+    char scoreText[50];
+    sprintf(scoreText, "Joueur 1 [ %d ] - [ %d ] Joueur 2", GetPlayerScore(player1), GetPlayerScore(player2));
+    renderText(renderer, scoreText, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 300);
 
-    // Ajouter des instructions pour les clics de souris
-    renderText(renderer, "Clic droit pour Rejouer", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 50);
-    renderText(renderer, "Clic gauche pour Quitter", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 200);
+    renderText(renderer, winnerText, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 200);
+    renderText(renderer, "Rejouer", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+    renderText(renderer, "Retour au Menu", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 100);
 
-    // Présenter à l'écran
     SDL_RenderPresent(renderer);
 }
 
-
-int handleEndScreenEvents(SDL_Renderer *renderer) {
+// Fonction pour gerer les evenements de l'ecran de fin
+int handleEndScreenEvents(SDL_Renderer *renderer, GameState gameState, Player *player1, Player *player2) {
     SDL_Event event;
-    int replayClicked = -1;  // Valeur par défaut, indiquant qu'aucun choix n'a été fait.
-    int quit = 0;  // Flag pour sortir de la boucle
+    int choice = 1;
+    int quit = 0;
+    int selectedOption = 0;
 
     while (!quit) {
         SDL_WaitEvent(&event);
 
         if (event.type == SDL_QUIT) {
-            quit = 1; // Quitter le jeu
-        } else if (event.type == SDL_MOUSEBUTTONDOWN) {
-            int x, y;
-            SDL_GetMouseState(&x, &y);
-
-            // Si le clic est à droite (1 pour droit)
-            if (event.button.button == SDL_BUTTON_RIGHT) {
-                replayClicked = 1; // Rejouer
-                quit = 1;  // Sortir de la boucle
-            }
-            // Si le clic est à gauche (0 pour quitter)
-            else if (event.button.button == SDL_BUTTON_LEFT) {
-                replayClicked = 0; // Quitter
-                quit = 1;  // Sortir de la boucle
+            choice = 1;
+            quit = 1;
+        } else if (event.type == SDL_KEYDOWN) {
+            switch (event.key.keysym.sym) {
+                case SDLK_UP:
+                case SDLK_DOWN:
+                    selectedOption = !selectedOption;
+                    displayEndScreen(renderer, gameState, player1, player2);
+                    if (selectedOption == 1) {
+                        renderText(renderer, "> Rejouer <", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+                        renderText(renderer, "Retour au Menu", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 100);
+                    } else {
+                        renderText(renderer, "Rejouer", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+                        renderText(renderer, "> Retour au Menu <", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 100);
+                    }
+                    SDL_RenderPresent(renderer);
+                    break;
+                case SDLK_RETURN:
+                    choice = selectedOption;
+                    quit = 1;
+                    break;
             }
         }
     }
 
-    return replayClicked; // 1 pour "Rejouer", 0 pour "Quitter"
+    return choice;
 }
 
+// ==============================
+// Section: Affichage et gestion du menu
+// ==============================
 
+// Fonction pour afficher le menu
+void displayMenuSDL(SDL_Renderer *renderer) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    renderText(renderer, "Tron Game", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 200);
+    renderText(renderer, "Jouer", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+    renderText(renderer, "Quitter", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 100);
+
+    SDL_RenderPresent(renderer);
+}
+
+// Fonction pour gerer les evenements du menu
+int handleMenuEvents(SDL_Renderer *renderer) {
+    SDL_Event event;
+    int choice = 1;
+    int quit = 0;
+    int selectedOption = 0;
+
+    while (!quit) {
+        SDL_WaitEvent(&event);
+
+        if (event.type == SDL_QUIT) {
+            choice = 0;
+            quit = 1;
+        } else if (event.type == SDL_KEYDOWN) {
+            switch (event.key.keysym.sym) {
+                case SDLK_UP:
+                case SDLK_DOWN:
+                    selectedOption = !selectedOption;
+                    displayMenuSDL(renderer);
+                    if (selectedOption == 1) {
+                        renderText(renderer, "> Jouer <", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+                        renderText(renderer, "Quitter", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 100);
+                    } else {
+                        renderText(renderer, "Jouer", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+                        renderText(renderer, "> Quitter <", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 100);
+                    }
+                    SDL_RenderPresent(renderer);
+                    break;
+                case SDLK_RETURN:
+                    choice = selectedOption;
+                    quit = 1;
+                    break;
+            }
+        }
+    }
+
+    return choice;
+}
+
+// ==============================
+// Section: Affichage et gestion de la selection du mode de jeu 
+// ==============================
+
+// Fonction pour afficher la selection du mode de jeu
+void displayModeDeJeuSDL(SDL_Renderer *renderer) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    renderText(renderer, "Selection du mode de jeu", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 200);
+    renderText(renderer, "Bo3", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+    renderText(renderer, "Bo5", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 100);
+
+    SDL_RenderPresent(renderer);
+}
+
+// Fonction pour gerer les evenements de la selection du mode de jeu
+int handleModeDeJeuEvents(SDL_Renderer *renderer) {
+    SDL_Event event;
+    int choice = 1;
+    int quit = 0;
+    int selectedOption = 0;
+
+    while (!quit) {
+        SDL_WaitEvent(&event);
+
+        if (event.type == SDL_QUIT) {
+            choice = 0;
+            quit = 1;
+        } else if (event.type == SDL_KEYDOWN) {
+            switch (event.key.keysym.sym) {
+                case SDLK_UP:
+                case SDLK_DOWN:
+                    selectedOption = !selectedOption;
+                    displayModeDeJeuSDL(renderer);
+                    if (selectedOption == 1) {
+                        renderText(renderer, "> Bo3 <", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+                        renderText(renderer, "Bo5", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 100);
+                        renderText(renderer, "Le premier a 2 points gagne", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 300);
+                    } else {
+                        renderText(renderer, "Bo3", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+                        renderText(renderer, "> Bo5 <", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 100);
+                        renderText(renderer, "Le premier a 3 points gagne", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 300);
+                    }
+                    SDL_RenderPresent(renderer);
+                    break;
+                case SDLK_RETURN:
+                    choice = selectedOption;
+                    quit = 1;
+                    break;
+            }
+        }
+    }
+
+    return choice;
+}
+
+// ==============================
+// Autres fonctions
+// ==============================
+
+
+// Fonction pour afficher les touches des joueurs
+void displayControls(SDL_Renderer *renderer) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    // Affichage des touches pour le joueur 1
+    SDL_Color blue = {0, 0, 255, 255};
+    renderTextWithColor(renderer, "Joueur 1", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 170, blue);
+    renderText(renderer, "Z", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 80);
+    renderText(renderer, "Q", WINDOW_WIDTH / 4 - 60, WINDOW_HEIGHT / 2);
+    renderText(renderer, "S", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2);
+    renderText(renderer, "D", WINDOW_WIDTH / 4 + 60, WINDOW_HEIGHT / 2);
+
+    // Affichage des touches pour le joueur 2
+    SDL_Color red = {255, 0, 0, 255};
+    renderTextWithColor(renderer, "Joueur 2", 3 * WINDOW_WIDTH / 4 - 20, WINDOW_HEIGHT / 2 - 170, red);
+    renderText(renderer, "\u2191", 3 * WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 100);
+    renderText(renderer, "\u2190", 3 * WINDOW_WIDTH / 4 - 60, WINDOW_HEIGHT / 2);
+    renderText(renderer, "\u2193", 3 * WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2);
+    renderText(renderer, "\u2192", 3 * WINDOW_WIDTH / 4 + 60, WINDOW_HEIGHT / 2);
+
+    SDL_RenderPresent(renderer);
+    SDL_Delay(5000);
+}
+
+// Fonction pour afficher du texte avec SDL_ttf et couleur
+void renderTextWithColor(SDL_Renderer *renderer, const char* text, int x, int y, SDL_Color color) {
+    TTF_Font *font = TTF_OpenFont("assets/Fonts/Monas-BLBW8.ttf", 72);
+    if (font == NULL) {
+        CheckTTFError(__LINE__);
+    }
+
+    SDL_Surface *surface = TTF_RenderText_Solid(font, text, color);
+    if (surface == NULL) {
+        CheckTTFError(__LINE__);
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (texture == NULL) {
+        CheckSDLError(__LINE__);
+    }
+
+    SDL_Rect rect = {x - surface->w / 2, y - surface->h / 2, surface->w, surface->h};
+    SDL_RenderCopy(renderer, texture, NULL, &rect);
+
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+    TTF_CloseFont(font);
+}

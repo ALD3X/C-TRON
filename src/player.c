@@ -1,143 +1,169 @@
-// player.c
+#include "../include/player.h"
+#include "../include/elements.h"
+#include "../include/utils.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-#include "player.h"
+// ==============================
+// Section: Fonctions utiles
+// ==============================
 
-
-// Initialise le joueur avec une position et un identifiant
-void InitializePlayer(Player *player, int id) {
-    CheckPointer(player, "Pointeur du joueur invalide.");
-
-    player->id = id;
-    player->isAlive = 1;
-    player->score = 0;
-    player->vitesse = 60;
-    player->lastMoveTime = clock();
-}
-
-// Retourne 1 si la case est libre, 0 sinon
+// Verifie si les coordonnees donnees sont valides sur la carte
 int CheckCollision(Map *map, int x, int y) {
-    CheckMap(map);
-
-    if (!IsCoordinateValid(x, y)) return 0;
+    CheckMultiplePointers(map, map->Grille, NULL);
+    if (!IsCoordinateValid(x, y)) {
+        LOG("Erreur: Coordonnees hors limites.\n");
+        return 0; 
+    }
     return (map->Grille[x][y] == VIDE);
 }
 
-// Retourne 1 si les coordonnées sont valides, 0 sinon
+// Verifie si les coordonnees (x, y) sont valides (dans les limites de la carte)
 int IsCoordinateValid(int x, int y) {
-    return (x > 0 || x < Rows || y > 0 || y < Cols);
+    return (x >= 0 && x < Rows && y >= 0 && y < Cols);
 }
 
-void switchPlayerDirection(Player *player, Direction direction_){
-    player->direction = direction_ ;
+// ==============================
+// Section: Fonctions de gestion du joueur
+// ==============================
+
+// Initialise un joueur avec un ID unique
+void InitializePlayer(Player *player, int id) {
+    CheckMultiplePointers(player, NULL);
+    player->id = id;
+    player->score = 0;
+    player->isAlive = 1;
+    player->vitesse = SPEED;
+    player->direction = (Direction)(rand() % DIRECTION_COUNT);
+    player->lastMoveTime = clock();
+    LOG("Joueur %d initialise a la position (%d, %d) avec la direction %d.\n", id, player->x, player->y, player->direction);
 }
 
-// Déplace le joueur dans une direction
+// Reinitialise la vie du joueur
+void ResetPlayerLive(Player *player) { 
+    CheckMultiplePointers(player, NULL);
+    player->isAlive = 1;
+    LOG("Vie du joueur %d reinitialisee.\n", player->id);
+}
+
+// Marque la mort du joueur
+void SetPlayerDeath(Player *player) {
+    CheckMultiplePointers(player, NULL);
+    player->isAlive = 0;
+    LOG("Joueur %d est mort.\n", player->id);
+}
+
+// Reinitialise les scores des joueurs
+void ResetScores(Player *player1, Player *player2) {
+    CheckMultiplePointers(player1, player2, NULL);
+    player1->score = 0;
+    player2->score = 0;
+    LOG("Scores des joueurs reinitialises.\n");
+}
+
+// Incremente le score du joueur
+void AddPlayerScore(Player *player) {
+    CheckMultiplePointers(player, NULL);
+    player->score++;
+    LOG("Score du joueur %d incremente a %d.\n", player->id, player->score);
+}
+
+// Retourne le score actuel du joueur
+int GetPlayerScore(const Player *player) {
+    CheckMultiplePointers((void *)player, NULL);
+    return player->score;
+}
+
+// Met a jour la position du joueur sur la carte
+void SetPlayerCoordinate(Player *player, Map *map, int x, int y) {
+    CheckMultiplePointers(player, NULL);
+    player->x = x;
+    player->y = y;
+    map->Grille[x][y] = player->id;
+    LOG("Joueur %d deplace a la position (%d, %d).\n", player->id, x, y);
+}
+
+// Change la direction du joueur
+void SwitchPlayerDirection(Player *player, Direction direction_) {
+    CheckMultiplePointers(player, NULL);
+    player->direction = direction_;
+    LOG("Joueur %d a change de direction pour %d.\n", player->id, direction_);
+}
+
+// ==============================
+// Section: Fonctions de gestion du mouvement
+// ==============================
+
+// Met a jour le mouvement du joueur en fonction de sa vitesse et du temps ecoule
+void UpdatePlayerMovement(Player *player, Map *map) {
+    CheckMultiplePointers(map, map->Grille, player, NULL);
+    clock_t currentTime = clock();
+    double elapsedTime = (double)(currentTime - player->lastMoveTime) / CLOCKS_PER_SEC;
+    double movementDelay = FRAME_TIME / player->vitesse;
+    if (elapsedTime >= movementDelay) {
+        MovePlayerInDirection(player, map);
+        player->lastMoveTime = currentTime;
+        LOG("Joueur %d deplace apres %f secondes.\n", player->id, elapsedTime);
+    }
+}
+
+// Deplace le joueur dans la direction actuelle, en verifiant la validite du mouvement
 void MovePlayerInDirection(Player *player, Map *map) {
-    CheckALL(1, map, player);
+    CheckMultiplePointers(map, map->Grille, player, NULL);
     if (!player->isAlive) return;
-
     int newX = player->x, newY = player->y;
-
     CalculateNewPosition(player->direction, &newX, &newY);
-    RecordPlayerPath(map, player);
-    UpdatePlayerPosition(player, map, newX, newY);
-    
-
+    CreatePlayerWall(map, player); 
+    UpdatePlayerPosition(player, map, newX, newY); 
+    LOG("Joueur %d deplace dans la direction %d a la position (%d, %d).\n", player->id, player->direction, newX, newY);
 }
 
-// Calcule la nouvelle position
+// Calcule la nouvelle position du joueur en fonction de la direction
 void CalculateNewPosition(Direction direction, int *x, int *y) {
     switch (direction) {
         case TOP:    (*x)--; break;
         case DOWN:   (*x)++; break;
         case LEFT:   (*y)--; break;
         case RIGHT:  (*y)++; break;
+        case DIRECTION_COUNT: break;
     }
 }
 
-// Enregistre le chemin du joueur
-void RecordPlayerPath(Map *map, Player *player) {
-    CheckALL(1, map, player);
-
-    if (!IsCoordinateValid(player->x, player->y) || !player->isAlive) return ;
+// Cree un mur de lumiere derriere le joueur
+void CreatePlayerWall(Map *map, Player *player) {
+    CheckMultiplePointers(map, map->Grille, player, NULL);
+    if (!IsCoordinateValid(player->x, player->y) || !player->isAlive) return;
     DrawLineOnMap(map, player->id, player->x, player->y);
-    
+    LOG("Joueur %d a cree un mur a la position (%d, %d).\n", player->id, player->x, player->y);
 }
 
-// Met à jour la position du joueur
+// Met a jour la position du joueur sur la carte, en verifiant les collisions
 void UpdatePlayerPosition(Player *player, Map *map, int newX, int newY) {
-    CheckALL(1, map, player);
-
-    if (!IsCoordinateValid(player->x, player->y) || !player->isAlive) return ;
-
+    CheckMultiplePointers(map, map->Grille, player, NULL);
+    if (!IsCoordinateValid(newX, newY) || !player->isAlive) return;
     if (CheckCollision(map, newX, newY)) {
-        player->x = newX;
-        player->y = newY;
-        map->Grille[newX][newY] = player->id;
-    } 
-    else HandlePlayerCollision(player);
-}
-
-// Gère la collision du joueur
-void HandlePlayerCollision(Player *player) {
-    CheckPointer(player, "Pointeur du joueur invalide.");
-    player->isAlive = 0;
-    printf("Le joueur %d s'est ecrase.\n", player->id - 1);
-}
-
-// Mettre à jour le joueur en fonction de la vitesse
-void UpdatePlayerMovement(Player *player, Map *map) {
-
-    // Vérifier si le temps écoulé est suffisant pour déplacer le joueur
-    clock_t currentTime = clock();
-    double elapsedTime = (double)(currentTime - player->lastMoveTime) / CLOCKS_PER_SEC;
-
-    // Si l'intervalle de temps est suffisant pour faire avancer le joueur en fonction de sa vitesse
-    if (elapsedTime >= (1.0 / player->vitesse)) {
-        
-        MovePlayerInDirection(player, map);
-        player->lastMoveTime = currentTime;
+        SetPlayerCoordinate(player, map, newX, newY);
+    } else {
+        SetPlayerDeath(player);
     }
+    LOG("Position du joueur %d mise a jour a (%d, %d).\n", player->id, newX, newY);
 }
 
+// ==============================
+// Section: Fonctions d'apparition des joueurs
+// ==============================
 
-
-// --- Spawn des joueur --- a revoir 
-
-// Génère des coordonnées valides aleatoire
-int GenerateValidCoordinates(int *x, int *y, Map *map) {
-    CheckMap(map);
-
-    for (int attempts = 0; attempts < MAX_ATTEMPTS; attempts++) {
-        *x = rand() % (Rows - 2) + 1;
-        *y = rand() % (Cols - 2) + 1;
-
-        if (CheckCollision(map, *x, *y)) return 1;
-        
-    }
-    fprintf(stderr, "Erreur: Impossible de générer des coordonnées valides.\n");
-    return 0;
-}
-
-// Fait apparaître deux joueurs
+// Fait apparaitre deux joueurs sur la carte a des positions initiales
 void SpawnTwoPlayers(Player *player1, Player *player2, Map *map) {
-    CheckALL(2, map, player1, player2);
-
-    srand(time(NULL));
-    int x1, y1;
-
-    if (!GenerateValidCoordinates(&x1, &y1, map)) {
-        fprintf(stderr, "Erreur: Impossible de placer le joueur 1.\n");
-        exit(EXIT_FAILURE);
+    CheckMultiplePointers(map, map->Grille, player1, player2, NULL);
+    int x1 = Rows / 2, y1 = Cols / 4;
+    int x2 = Rows / 2, y2 = 3 * Cols / 4;
+    if (!IsCoordinateValid(x1, y1) || !IsCoordinateValid(x2, y2)) {
+        LOG("Erreur: Coordonnees hors limites.\n");
+        return;
     }
-
-    int x2 = Rows - 1 - x1, y2 = Cols - 1 - y1;
-
-    if (!CheckCollision(map, x2, y2)) {
-        fprintf(stderr, "Erreur: Impossible de placer le joueur 2 aux coordonnées opposées (%d, %d).\n", x2, y2);
-        exit(EXIT_FAILURE);
-    }
-
     UpdatePlayerPosition(player1, map, x1, y1);
     UpdatePlayerPosition(player2, map, x2, y2);
+    LOG("Joueurs apparus aux positions (%d, %d) et (%d, %d).\n", x1, y1, x2, y2);
 }

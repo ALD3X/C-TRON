@@ -1,18 +1,26 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "map.h"
+// ====================================================
+//                     MACROS
+// ====================================================
 
-// Macro pour vérifier les joueurs et la carte
-#define CheckALL(count, map, ...) CheckPlayerAndMap((void*[]){__VA_ARGS__}, count, map)
+#ifdef DEBUG
+    #define LOG(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__)
+#else
+    #define LOG(fmt, ...) // Ne fait rien si DEBUG n'est pas defini
+#endif
 
-// Fonction utilitaire pour vérifier les pointeurs et gérer les erreurs
-void CheckPointer(void *ptr, const char *errorMessage);
-void CheckMap(void *map);
-void CheckPlayers(void **players, int player_count);   // Players devient un tableau de void*
-void CheckPlayerAndMap(void **players, int nbPlayer, void *map);   // Players et map sont des void*
-  
+#define CheckMultiplePointers(...) CheckMultiplePointersHelper(__FILE__, __LINE__, __VA_ARGS__, NULL)
+
+// ====================================================
+//                    FONCTIONS
+// ====================================================
+
+// Verifie plusieurs pointeurs a la fois
+void CheckMultiplePointersHelper(const char *file, int line, void *first_ptr, ...);
+void CheckSDLError(int line);
+void CheckTTFError(int line);
+void CheckNcursesError(int result, int line);
+
 #endif // UTILS_H

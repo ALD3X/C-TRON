@@ -1,36 +1,37 @@
-// game.h
-
 #ifndef GAME_H
 #define GAME_H
 
-#include <stdio.h>     // Pour printf, fprintf, etc.
-#include <stdlib.h>    // Pour exit, malloc, etc.
-#include "game.h"      // Pour les définitions de GameState et des prototypes de fonction
-#include "utils.h"     // Pour CheckPointer, si nécessaire
-#include "player.h"    // Pour la définition de la structure Player
-#include "map.h"       // Pour la définition de la structure Map
-
-
-// Énumération pour les états du jeu
 typedef enum {
     GAME_ONGOING,
     PLAYER1_WON,
-    PLAYER2_WON
+    PLAYER2_WON,
+    GAME_WAITING
 } GameState;
 
-// Fonction pour vérifier l'état du jeu
-GameState CheckGameState(const Player *player1, const Player *player2);
+#include "display.h"   
+#include "player.h"    
+#include "input.h"   
 
-// Fonction pour ajouter un score à un joueur
-void AddPlayerScore(Player *player);
+// ====================================================
+//                    FONCTIONS
+// ====================================================
 
-// Fonction pour réinitialiser la vie d'un joueur
-void ResetPlayerLive(Player *player);
-
-// Fonction pour redémarrer le jeu
+// Redemarre le jeu
 void RestartGame(Player *player1, Player *player2, Map *map);
 
-// Fonction pour retourner le score du joueur 
-int GetPlayerScore(const Player *player);
+// Initialise le jeu
+void InitializeGame(Player *player1, Player *player2, Map *map);
+
+// Met a jour le jeu
+void UpdateGame(Player *player1, Player *player2, Map *map);
+
+// Affiche l'etat du jeu
+void DisplayGameState(const Player *player1, const Player *player2);
+
+// Gere la boucle principale du jeu
+void HandleGameLoop(DisplayContext *display, Player *player1, Player *player2, Map *map);
+
+// Definie le mode de jeu
+GameState ModeDeJeu(int mode, Player *player1, Player *player2, Map *map, DisplayContext *display);
 
 #endif // GAME_H

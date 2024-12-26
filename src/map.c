@@ -1,32 +1,57 @@
-//map.c
+#include "../include/map.h"
+#include "../include/elements.h"
+#include "../include/utils.h"
+#include "../include/player.h"
+#include <stdlib.h>
+#include <stdio.h>
 
-#include "map.h"
+// ==============================
+// Section: Fonctions de gestion de la carte
+// ==============================
 
-// Initialiser la carte
+// Initialiser la carte : remplissage des cases avec des murs et des espaces vides
 void InitializeMap(Map *map) {
-
-    CheckMap(map);
-
+    CheckMultiplePointers((void *)map, map->Grille, NULL);
     for (int i = 0; i < Rows; i++) {
         for (int j = 0; j < Cols; j++) {
-            // Utiliser une condition pour remplir la grille
             map->Grille[i][j] = (i == 0 || j == 0 || i == Rows - 1 || j == Cols - 1) ? MUR : VIDE;
         }
     }
-} // InitializeMap
+}
 
-// Réinitialiser la carte
+// Reinitialiser la carte : reinitialise la carte en redessinant les murs et espaces vides
 void ResetMap(Map *map) {
+    CheckMultiplePointers((void *)map, map->Grille, NULL);
+    InitializeMap(map); 
+}
 
-    CheckMap(map);
-    InitializeMap(map);
-} // ResetMap
+// ==============================
+// Section: Fonctions d'affichage
+// ==============================
 
-// Creer une ligne derrière le joueur
+// Dessiner une ligne derriere le joueur sur la carte
 void DrawLineOnMap(Map *map, int id, int x, int y) {
+    CheckMultiplePointers((void *)map, map->Grille, NULL);
+    map->Grille[x][y] = id * 2;  // Marque la case avec une valeur basee sur l'ID du joueur
+}
 
-    CheckMap(map);
-    map->Grille[x][y] = id * 2; // Dessiner la ligne
-} // DrawLineOnMap
+// Afficher la carte dans la console
+void DisplayMap(const Map *map) {
+    CheckMultiplePointers((void *)map, map->Grille, NULL);
+    for (int i = 0; i < Rows; i++) {
+        for (int j = 0; j < Cols; j++) {
+            printf("%d ", map->Grille[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+// Effacer une ligne sur la carte 
+void ClearLineOnMap(Map *map, int x, int y) {
+    CheckMultiplePointers((void *)map, map->Grille, NULL);
+    if (IsCoordinateValid(x, y) == 1) {
+        map->Grille[x][y] = VIDE;
+    }
+}
 
 

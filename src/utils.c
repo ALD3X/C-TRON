@@ -1,41 +1,61 @@
-// utils.c
+#include "../include/utils.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <ncurses.h>
 
-#include "utils.h"
 
-// Fonction utilitaire pour vérifier les pointeurs et gérer les erreurs
-void CheckPointer(void *ptr, const char *errorMessage) {
-    if (ptr == NULL) {
-        fprintf(stderr, "Erreur: %s\n", errorMessage);
-        exit(EXIT_FAILURE); 
+// ==============================
+// Section: Fonctions utilitaires
+// ==============================
+
+// Fonction pour verifier plusieurs pointeurs a la fois
+void CheckMultiplePointersHelper(const char *file, int line, void *first_ptr, ...) {
+    va_list args;
+    va_start(args, first_ptr);
+
+    void *ptr = first_ptr;
+    int count = 1;
+
+    while (ptr != NULL) {
+        if (ptr == NULL) {
+            LOG("Erreur: Le pointeur %d est NULL dans %s a la ligne %d.\n", count, file, line);
+            exit(EXIT_FAILURE);
+        }
+        ptr = va_arg(args, void*);
+        count++;
     }
+
+    va_end(args);
 }
 
-// Fonction pour vérifier la carte
-void CheckMap(void *map) {
-    CheckPointer(map, "La carte est invalide.");
-    // Cast explicite pour accéder aux membres spécifiques de 'Map'
-    Map *actualMap = (Map*)map; 
-    CheckPointer(actualMap->Grille, "La grille de la carte est invalide.");
-}
-
-// Fonction pour vérifier les joueurs
-void CheckPlayers(void **players, int player_count) {
-    if (players == NULL) {
-        fprintf(stderr, "Erreur : Tableau de joueurs invalide.\n");
+// Fonction pour verifier les erreurs SDL
+void CheckSDLError(int line) {
+    const char *error = SDL_GetError();
+    if (*error != '\0') {
+        LOG("SDL Error: %s at line %d\n", error, line);
+        SDL_ClearError();
         exit(EXIT_FAILURE);
     }
+}
 
-    for (int i = 0; i < player_count; i++) {
-        if (players[i] == NULL) {
-            char message[100];
-            snprintf(message, sizeof(message), "Informations du joueur %d invalides.", i + 1);
-            CheckPointer(players[i], message);  
-        }
+// Fonction pour verifier les erreurs TTF
+void CheckTTFError(int line) {
+    const char *error = TTF_GetError();
+    if (*error != '\0') {
+        LOG("TTF Error: %s at line %d\n", error, line);
+        exit(EXIT_FAILURE);
     }
 }
 
-// Fonction pour vérifier les joueurs et la carte ensemble
-void CheckPlayerAndMap(void **players, int nbPlayer, void *map) {
-    CheckPlayers(players, nbPlayer);
-    CheckMap(map);
+// Fonction pour verifier les erreurs ncurses
+void CheckNcursesError(int result, int line) {
+    if (result == ERR) {
+        LOG("Ncurses Error at line %d\n", line);
+        exit(EXIT_FAILURE);
+    }
 }
+
+
