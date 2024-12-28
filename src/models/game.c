@@ -87,12 +87,8 @@ GameState ModeDeJeu(int mode, Player *player1, Player *player2, Map *map, Displa
 
     int nb;
     // Verification du mode de jeu
-    if(mode == 0){
-        nb = 2;
-    }
-    else if(mode == 1){
-        nb = 3;
-    }
+    if(mode == 0) nb = 2;
+    else if(mode == 1) nb = 3;
     else return GAME_WAITING;
     
 
@@ -184,7 +180,6 @@ void HandleGameLoop(DisplayContext *display, Player *player1, Player *player2, M
         // Gestion de l'etat "GAME_ONGOING"
         if (modeDeJeu != -1 && state == GAME_ONGOING) {
             state = ModeDeJeu(modeDeJeu, player1, player2, map, display);
-            modeDeJeu = -1;
         }
 
         // Gestion de l'ecran de fin
