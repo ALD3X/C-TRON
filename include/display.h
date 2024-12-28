@@ -80,6 +80,8 @@ int handleModeDeJeuEvents(SDL_Renderer *renderer, DisplayContext *display);
 // Affiche les touches des joueurs
 void displayControls(SDL_Renderer *renderer);
 
+void renderUnicode(SDL_Renderer *renderer, const char* text, int x, int y, SDL_Color color);
+
 
 // ====================================================
 //              FONCTIONS SPECIFIQUES A NCURSES
@@ -114,7 +116,6 @@ void displayEndScreenNcurses(GameState gameState, Player *player1, Player *playe
 int handleEndScreenEventsNcurses(GameState gameState, Player *player1, Player *player2);
 
 void displayScoreNcurses(Player *player1, Player *player2);
-
 void displayControlsNcurses();
 
 #endif // DISPLAY_H

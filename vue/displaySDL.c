@@ -109,7 +109,7 @@ void displayCountdownSDL(SDL_Renderer *renderer) {
         SDL_RenderClear(renderer);
 
         sprintf(countdown, "%d", i);
-        renderText(renderer, countdown, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, white);
+        renderUnicode(renderer, countdown, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, white);
 
         SDL_RenderPresent(renderer);
         SDL_Delay(1000);
@@ -393,19 +393,44 @@ void displayControls(SDL_Renderer *renderer) {
 
     // Affichage des touches pour le joueur 1
     renderText(renderer, "Joueur 1", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 170, blue);
-    renderText(renderer, "Z", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 80, white);
-    renderText(renderer, "Q", WINDOW_WIDTH / 4 - 60, WINDOW_HEIGHT / 2, white);
-    renderText(renderer, "S", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2, white);
-    renderText(renderer, "D", WINDOW_WIDTH / 4 + 60, WINDOW_HEIGHT / 2, white);
+    renderUnicode(renderer, "Z", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 60, white);
+    renderUnicode(renderer, "Q", WINDOW_WIDTH / 4 - 60, WINDOW_HEIGHT / 2, white);
+    renderUnicode(renderer, "S", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 + 60, white);
+    renderUnicode(renderer, "D", WINDOW_WIDTH / 4 + 60, WINDOW_HEIGHT / 2, white);
 
     // Affichage des touches pour le joueur 2
     renderText(renderer, "Joueur 2", 3 * WINDOW_WIDTH / 4 - 20, WINDOW_HEIGHT / 2 - 170, red);
-    renderText(renderer, "\u2191", 3 * WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 100, white); // Flèche Haut
-    renderText(renderer, "\u2018", 3 * WINDOW_WIDTH / 4 - 60, WINDOW_HEIGHT / 2, white); // Flèche Gauche
-    renderText(renderer, "\u02C7", 3 * WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2, white);      // Flèche Bas
-    renderText(renderer, "\u2019", 3 * WINDOW_WIDTH / 4 + 60, WINDOW_HEIGHT / 2, white); // Flèche Droite
+    renderUnicode(renderer, "\u2191", 3 * WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 60, white); // Flèche Haut
+    renderUnicode(renderer, "\u2190", 3 * WINDOW_WIDTH / 4 - 60, WINDOW_HEIGHT / 2, white); // Flèche Gauche
+    renderUnicode(renderer, "\u2193", 3 * WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 + 60, white); // Flèche Bas
+    renderUnicode(renderer, "\u2192", 3 * WINDOW_WIDTH / 4 + 60, WINDOW_HEIGHT / 2, white); // Flèche Droite
 
     SDL_RenderPresent(renderer);
     SDL_Delay(5000);
+}
+
+// Fonction pour afficher du texte non reconnu par la font avec SDL_ttf
+void renderUnicode(SDL_Renderer *renderer, const char* text, int x, int y, SDL_Color color) {
+    TTF_Font *font = TTF_OpenFont("assets/Fonts/Arial.ttf", 72);
+    if (font == NULL) {
+        CheckTTFError(__LINE__);
+    }
+
+    SDL_Surface *surface = TTF_RenderUTF8_Solid(font, text, color);
+    if (surface == NULL) {
+        CheckTTFError(__LINE__);
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (texture == NULL) {
+        CheckSDLError(__LINE__);
+    }
+
+    SDL_Rect rect = {x - surface->w / 2, y - surface->h / 2, surface->w, surface->h};
+    SDL_RenderCopy(renderer, texture, NULL, &rect);
+
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+    TTF_CloseFont(font);
 }
 

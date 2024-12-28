@@ -79,90 +79,69 @@ void DisplayGameState(const Player *player1, const Player *player2) {
 }
 
 // ==============================
-// Section: Fonctions de gestion du mode de jeu
+// Section: Gestion du mode de jeu
 // ==============================
+GameState ModeDeJeu(int mode, Player *player1, Player *player2, Map *map, DisplayContext *display) {
+    int nb = (mode == 1) ? 2 : 3;
 
-// Gere le mode de jeu
-GameState ModeDeJeu(int mode, Player *player1, Player *player2, Map *map, DisplayContext *display){
-    int nb = mode == 1 ? 2 : 3;
-
-    if(display->type == DISPLAY_SDL){
+    // Affichage des contrôles et du compte à rebours
+    if (display->type == DISPLAY_SDL) {
         displayControls(display->renderer);
         displayCountdownSDL(display->renderer);
-    }
-    else{
+    } else {
         displayControlsNcurses();
         displayCountdownNcurses();
     }
-    
-    while (GetPlayerScore(player1) < nb || GetPlayerScore(player2) < nb) {
-        switch (display->type){
 
-            case DISPLAY_SDL:
-                DrawMap(display, map);
-                HandlePlayerInputSDL(player1, player2, map);
-                UpdatePlayerMovement(player1, map);
-                UpdatePlayerMovement(player2, map);
-                SDL_RenderPresent(display->renderer);
+    // Boucle principale du jeu
+    while (GetPlayerScore(player1) < nb && GetPlayerScore(player2) < nb) {
+        DrawMap(display, map);
 
-                if (player1->isAlive == 0) {
-                    AddPlayerScore(player2);
-                    RestartGame(player1, player2, map);
+        // Gestion des entrées et des mouvements selon le type d'affichage
+        if (display->type == DISPLAY_SDL) {
+            HandlePlayerInputSDL(player1, player2, map);
+        } else {
+            HandlePlayerInputNcurses(player1, player2, map);
+        }
+
+        UpdatePlayerMovement(player1, map);
+        UpdatePlayerMovement(player2, map);
+
+        // Vérification des scores et gestion des éliminations
+        for (int i = 0; i < 2; i++) {
+            Player *current = (i == 0) ? player1 : player2;
+            Player *opponent = (i == 0) ? player2 : player1;
+
+            if (!current->isAlive) {
+                AddPlayerScore(opponent);
+                RestartGame(player1, player2, map);
+
+                if (display->type == DISPLAY_SDL) {
                     displayScore(display->renderer, player1, player2);
-                    if(GetPlayerScore(player1) == nb) return PLAYER1_WON;
-                    else if ( GetPlayerScore(player2) == nb) return PLAYER2_WON;
-                    else displayCountdownSDL(display->renderer);
-                    
-                }
-                if (player2->isAlive == 0) {
-                    AddPlayerScore(player1);
-                    RestartGame(player1, player2, map); 
-                    displayScore(display->renderer, player1, player2);
-                    if(GetPlayerScore(player1) == nb) return PLAYER1_WON;
-                    else if ( GetPlayerScore(player2) == nb) return PLAYER2_WON;
-                    else displayCountdownSDL(display->renderer);
-                }
-                break;
-            case DISPLAY_NCURSES:
-                DrawMap(display, map);
-                HandlePlayerInputNcurses(player1, player2, map);
-                UpdatePlayerMovement(player1, map);
-                UpdatePlayerMovement(player2, map);     
-                    
-                if (player1->isAlive == 0) {
-                    AddPlayerScore(player2);
-                    RestartGame(player1, player2, map);
+                    if (GetPlayerScore(player1) == nb) return PLAYER1_WON;
+                    if (GetPlayerScore(player2) == nb) return PLAYER2_WON;
+                    displayCountdownSDL(display->renderer);
+                } else {
                     displayScoreNcurses(player1, player2);
-                    if(GetPlayerScore(player1) == nb) return PLAYER1_WON;
-                    else if ( GetPlayerScore(player2) == nb) return PLAYER2_WON;
-                    else displayCountdownNcurses();
-                    
+                    if (GetPlayerScore(player1) == nb) return PLAYER1_WON;
+                    if (GetPlayerScore(player2) == nb) return PLAYER2_WON;
+                    displayCountdownNcurses();
                 }
-                if (player2->isAlive == 0) {
-                    AddPlayerScore(player1);
-                    RestartGame(player1, player2, map); 
-                    displayScoreNcurses(player1, player2);
-                    if(GetPlayerScore(player1) == nb) return PLAYER1_WON;
-                    else if ( GetPlayerScore(player2) == nb) return PLAYER2_WON;
-                    else displayCountdownNcurses();
-                }
-                break;
-            
-            default:
-                    fprintf(stderr, "Type d'affichage inconnu\n");
-                    exit(EXIT_FAILURE);
-                    break;
             }
+        }
+
+        // Rafraîchissement de l'affichage SDL
+        if (display->type == DISPLAY_SDL) {
+            SDL_RenderPresent(display->renderer);
+        }
     }
 
     return GAME_ONGOING;
 }
 
 // ==============================
-// Section: Fonctions de gestion de la boucle de jeu
+// Section: Gestion de la boucle de jeu
 // ==============================
-
-// Gere la boucle de jeu
 void HandleGameLoop(DisplayContext *display, Player *player1, Player *player2, Map *map) {
     int running = 1;
     GameState state = GAME_WAITING;
@@ -171,71 +150,45 @@ void HandleGameLoop(DisplayContext *display, Player *player1, Player *player2, M
     while (running) {
         int choice = -1;
 
-        switch (display->type) {
-            case DISPLAY_NCURSES:
-                if (state == GAME_WAITING) {
-                    choice = handleMenuEventsNcurses();
-                    if (choice == 0) {
-                        EndDisplay(display);
-                        exit(EXIT_SUCCESS);
-                    } else {
-                        state = GAME_ONGOING;
-                        modeDeJeu = handleModeDeJeuEventsNcurses();
-                        choice = -1;
-                    }
-                }
-                break;
-            case DISPLAY_SDL:
-                if (state == GAME_WAITING) {
-                    choice = handleMenuEvents(display->renderer);
-                    if (choice == 0) {
-                        EndDisplay(display);
-                    } else {
-                        state = GAME_ONGOING;
-                        modeDeJeu = handleModeDeJeuEvents(display->renderer, display);
-                        choice = -1;
-                    }
-                }
-                break;
-            default:
-                fprintf(stderr, "Type d'affichage inconnu\n");
-                exit(EXIT_FAILURE);
+        // Gestion de l'état "GAME_WAITING"
+        if (state == GAME_WAITING) {
+            if (display->type == DISPLAY_SDL) {
+                choice = handleMenuEvents(display->renderer);
+            } else {
+                choice = handleMenuEventsNcurses();
+            }
+
+            if (choice == 0) {
+                EndDisplay(display);
+                exit(EXIT_SUCCESS);
+            } else {
+                state = GAME_ONGOING;
+                modeDeJeu = (display->type == DISPLAY_SDL) ? handleModeDeJeuEvents(display->renderer, display) : handleModeDeJeuEventsNcurses();
+            }
         }
 
+        // Gestion de l'état "GAME_ONGOING"
         if (modeDeJeu != -1 && state == GAME_ONGOING) {
             state = ModeDeJeu(modeDeJeu, player1, player2, map, display);
         }
 
+        // Gestion de l'écran de fin
         if (state != GAME_ONGOING && state != GAME_WAITING) {
             if (display->type == DISPLAY_SDL) {
                 choice = handleEndScreenEvents(display->renderer, state, player1, player2, display);
-                if (choice == 1) {
-                    RestartGame(player1, player2, map);
-                    ResetScores(player1, player2);
-                    state = GAME_ONGOING;
-                    choice = -1;
-                } else {
-                    RestartGame(player1, player2, map);
-                    ResetScores(player1, player2);
-                    state = GAME_WAITING;
-                    modeDeJeu = -1;
-                    choice = -1;
-                }
             } else {
                 choice = handleEndScreenEventsNcurses(state, player1, player2);
-                if (choice == 0) {
-                    RestartGame(player1, player2, map);
-                    ResetScores(player1, player2);
-                    state = GAME_ONGOING;
-                    choice = -1;
-                } else {
-                    RestartGame(player1, player2, map);
-                    ResetScores(player1, player2);
-                    state = GAME_WAITING;
-                    modeDeJeu = -1;
-                    choice = -1;
-                }
-                break;
+            }
+
+            if (choice == 1) {
+                RestartGame(player1, player2, map);
+                ResetScores(player1, player2);
+                state = GAME_ONGOING;
+            } else {
+                RestartGame(player1, player2, map);
+                ResetScores(player1, player2);
+                state = GAME_WAITING;
+                modeDeJeu = -1;
             }
         }
     }

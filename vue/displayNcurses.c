@@ -237,9 +237,9 @@ void displayEndScreenNcurses(GameState gameState, Player *player1, Player *playe
     // Afficher les scores des joueurs
     char scoreText[50];
     sprintf(scoreText, "Joueur 1 [ %d ] - [ %d ] Joueur 2", GetPlayerScore(player1), GetPlayerScore(player2));
-    mvprintw(middleY - 2, middleX - strlen(scoreText) / 2, "%s", scoreText);
+    mvprintw(middleY - 3, middleX - strlen(scoreText) / 2, "%s", scoreText);
     // Afficher le texte du gagnant
-    mvprintw(middleY - 3, middleX - strlen(winnerText) / 2, "%s", winnerText);
+    mvprintw(middleY - 2, middleX - strlen(winnerText) / 2, "%s", winnerText);
 
     // Affichage des options avec surbrillance sur l'option sélectionnée
     if (selectedOption == 1) {
@@ -324,10 +324,10 @@ void displayControlsNcurses() {
 
     // Affichage des touches pour le joueur 2
     mvprintw(middleY - 10, 3 * middleX / 2 - 5, "Joueur 2");
-    mvprintw(middleY - 5, 3 * middleX / 2, "F UP");
-    mvprintw(middleY, 3 * middleX / 2 - 5, "F DW");
-    mvprintw(middleY, 3 * middleX / 2, "F G");
-    mvprintw(middleY, 3 * middleX / 2 + 5, "F D");
+    mvprintw(middleY - 5, 3 * middleX / 2, "^");
+    mvprintw(middleY, 3 * middleX / 2 - 5, "<");
+    mvprintw(middleY, 3 * middleX / 2, "v");
+    mvprintw(middleY, 3 * middleX / 2 + 5, ">");
 
     refresh(); // Actualiser l'affichage
     usleep(5000000); // Pause de 5 secondes
