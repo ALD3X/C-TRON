@@ -4,7 +4,7 @@
 #include "map.h"
 #include <time.h>
 
-#define SPEED 0.5
+#define SPEED 0.05
 #define TARGET_FPS 60
 #define FRAME_TIME (1.0 / TARGET_FPS)
 
