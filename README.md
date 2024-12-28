@@ -8,39 +8,45 @@ Le projet est organisé de la manière suivante :
 
 ### Fichiers principaux
 
+## Structure du projet
+
+Le projet est organisé de la manière suivante :
+
+### Fichiers principaux
+
 - #### `src/main.c`
 
 Le point d'entrée du programme. Il initialise le type d'affichage (SDL ou Ncurses), initialise le jeu et gère la boucle principale du jeu.
 
-- #### `src/game.c`
+- #### `src/models/game.c`
 
 Contient les fonctions principales de gestion du jeu, y compris l'initialisation, la mise à jour, et la gestion de la boucle de jeu.
 
-- #### `src/input.c`
+- #### `src/controllers/input.c`
 
 Gère les entrées des joueurs pour les deux modes d'affichage (SDL et Ncurses).
 
-- #### `src/map.c`
+- #### `src/models/map.c`
 
 Gère la carte du jeu, y compris l'initialisation et la réinitialisation de la carte.
 
-- #### `src/player.c`
+- #### `src/models/player.c`
 
 Gère les joueurs, y compris l'initialisation, la mise à jour des mouvements, et la gestion des scores.
 
-- #### `src/utils.c`
+- #### `src/utils/utils.c`
 
 Contient des fonctions utilitaires pour vérifier les erreurs et les pointeurs.
 
-- #### `vue/display.c`
+- #### `src/views/display.c`
 
 Gère l'initialisation et la terminaison de l'affichage, ainsi que le dessin de la carte.
 
-- #### `vue/displayNcurses.c`
+- #### `src/views/displayNcurses.c`
 
 Gère l'affichage et les événements du menu, du mode de jeu, et de l'écran de fin pour Ncurses.
 
-- #### `vue/displaySDL.c`
+- #### `src/views/displaySDL.c`
 
 Gère l'affichage et les événements du menu, du mode de jeu, et de l'écran de fin pour SDL.
 
