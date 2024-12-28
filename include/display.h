@@ -17,6 +17,7 @@ typedef struct {
     SDL_Renderer* renderer;  // Renderer SDL
 } DisplayContext;
 
+
 // ====================================================
 //                    FONCTIONS
 // ====================================================
@@ -41,7 +42,7 @@ bool InitSDL(DisplayContext *display);
 void EndSDL(DisplayContext *display);
 
 // Affiche du texte avec SDL
-void renderText(SDL_Renderer *renderer, const char* text, int x, int y);
+void renderText(SDL_Renderer *renderer, const char* text, int x, int y, SDL_Color color);
 
 // Affiche le compte a rebours avec SDL
 void displayCountdownSDL(SDL_Renderer *renderer);
@@ -56,13 +57,13 @@ SDL_Color GetCellColor(int cellType);
 void DrawSDL(SDL_Renderer* renderer, Map *map, int rows, int cols);
 
 // Affiche l'ecran de fin avec SDL
-void displayEndScreen(SDL_Renderer *renderer, GameState gameState, Player *player1, Player *player2);
+void displayEndScreen(SDL_Renderer *renderer, GameState gameState, Player *player1, Player *player2, int selectedOption);
 
 // Gere les evenements de l'ecran de fin
-int handleEndScreenEvents(SDL_Renderer *renderer, GameState gameState, Player *player1, Player *player2);
+int handleEndScreenEvents(SDL_Renderer *renderer, GameState gameState, Player *player1, Player *player2, DisplayContext *display);
 
 // Affiche le menu avec SDL
-void displayMenuSDL(SDL_Renderer *renderer);
+void displayMenuSDL(SDL_Renderer *renderer, int selectedOption);
 
 // Gere les evenements du menu
 int handleMenuEvents(SDL_Renderer *renderer);
@@ -71,16 +72,14 @@ int handleMenuEvents(SDL_Renderer *renderer);
 void displayScore(SDL_Renderer *renderer, Player *player1, Player *player2);
 
 // Affiche la selection du mode de jeu avec SDL
-void displayModeDeJeuSDL(SDL_Renderer *renderer);
+void displayModeDeJeuSDL(SDL_Renderer *renderer, int selectedOption);
 
 // Gere les evenements de la selection du mode de jeu
-int handleModeDeJeuEvents(SDL_Renderer *renderer);
+int handleModeDeJeuEvents(SDL_Renderer *renderer, DisplayContext *display);
 
 // Affiche les touches des joueurs
 void displayControls(SDL_Renderer *renderer);
 
-// Affiche le texte avec une couleur specifique
-void renderTextWithColor(SDL_Renderer *renderer, const char* text, int x, int y, SDL_Color color);
 
 // ====================================================
 //              FONCTIONS SPECIFIQUES A NCURSES
@@ -102,6 +101,20 @@ void InitColors();
 void displayCountdownNcurses();
 
 // Affiche le menu avec ncurses
-void DisplayMenuNcurses();
+void displayMenuNcurses(int selectedOption);
+
+int handleMenuEventsNcurses();
+
+void displayModeDeJeuNcurses(int selectedOption);
+
+int handleModeDeJeuEventsNcurses();
+
+void displayEndScreenNcurses(GameState gameState, Player *player1, Player *player2, int selectedOption);
+
+int handleEndScreenEventsNcurses(GameState gameState, Player *player1, Player *player2);
+
+void displayScoreNcurses(Player *player1, Player *player2);
+
+void displayControlsNcurses();
 
 #endif // DISPLAY_H

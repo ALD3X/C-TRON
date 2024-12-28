@@ -1,7 +1,7 @@
 # Définition des variables
 CC = gcc
 CFLAGS = -Iinclude -Wall -g
-SDL_FLAGS = `sdl2-config --cflags --libs`
+SDL_FLAGS = `sdl2-config --cflags --libs` 
 NCURSES_FLAGS = -lncurses
 SDL_TTF_FLAGS = -lSDL2_ttf
 MATH_FLAGS = -lm

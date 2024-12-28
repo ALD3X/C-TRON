@@ -14,7 +14,6 @@ void InitDisplay(DisplayContext *display) {
     switch (display->type) {
         case DISPLAY_NCURSES:
             InitNcurses();
-            DisplayMenuNcurses();
             break;
         case DISPLAY_SDL:
             if (!InitSDL(display)) {

@@ -22,7 +22,7 @@ void ResetMap(Map *map);
 void DrawLineOnMap(Map *map, int id, int x, int y);
 
 // Affiche la carte
-void DisplayMap(const Map *map);
+void DisplayMap(Map *map);
 
 // Efface une ligne sur la carte
 void ClearLineOnMap(Map *map, int x, int y);
