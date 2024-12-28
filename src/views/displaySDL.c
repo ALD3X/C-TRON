@@ -434,29 +434,50 @@ int HandleModeDeJeuEventsSDL(SDL_Renderer *renderer, DisplayContext *display) {
 
 // Fonction pour afficher les controles
 void DisplayControlsSDL(SDL_Renderer *renderer) {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
+    SDL_Event event;
+    bool running = true;
 
-    // Définition des couleurs
-    SDL_Color blue = {0, 0, 255, 255};
-    SDL_Color red = {255, 0, 0, 255};
-    SDL_Color white = {255, 255, 255, 255};
+    while (running) {
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
 
-    // Affichage des touches pour le joueur 1
-    RenderText(renderer, "Joueur 1", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 170, blue);
-    RenderUnicode(renderer, "Z", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 60, white);
-    RenderUnicode(renderer, "Q", WINDOW_WIDTH / 4 - 60, WINDOW_HEIGHT / 2, white);
-    RenderUnicode(renderer, "S", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 + 60, white);
-    RenderUnicode(renderer, "D", WINDOW_WIDTH / 4 + 60, WINDOW_HEIGHT / 2, white);
+        // Définition des couleurs
+        SDL_Color blue = {0, 0, 255, 255};
+        SDL_Color red = {255, 0, 0, 255};
+        SDL_Color white = {255, 255, 255, 255};
 
-    // Affichage des touches pour le joueur 2
-    RenderText(renderer, "Joueur 2", 3 * WINDOW_WIDTH / 4 - 20, WINDOW_HEIGHT / 2 - 170, red);
-    RenderUnicode(renderer, "\u2191", 3 * WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 60, white); // Flèche Haut
-    RenderUnicode(renderer, "\u2190", 3 * WINDOW_WIDTH / 4 - 60, WINDOW_HEIGHT / 2, white); // Flèche Gauche
-    RenderUnicode(renderer, "\u2193", 3 * WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 + 60, white); // Flèche Bas
-    RenderUnicode(renderer, "\u2192", 3 * WINDOW_WIDTH / 4 + 60, WINDOW_HEIGHT / 2, white); // Flèche Droite
+        // Affichage des touches pour le joueur 1
+        RenderText(renderer, "Joueur 1", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 170, blue);
+        RenderUnicode(renderer, "Z", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 60, white);
+        RenderUnicode(renderer, "Q", WINDOW_WIDTH / 4 - 60, WINDOW_HEIGHT / 2, white);
+        RenderUnicode(renderer, "S", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 + 60, white);
+        RenderUnicode(renderer, "D", WINDOW_WIDTH / 4 + 60, WINDOW_HEIGHT / 2, white);
 
-    SDL_RenderPresent(renderer);
-    SDL_Delay(5000);
+        // Affichage des touches pour le joueur 2
+        RenderText(renderer, "Joueur 2", 3 * WINDOW_WIDTH / 4 - 20, WINDOW_HEIGHT / 2 - 170, red);
+        RenderUnicode(renderer, "\u2191", 3 * WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 60, white); // Flèche Haut
+        RenderUnicode(renderer, "\u2190", 3 * WINDOW_WIDTH / 4 - 60, WINDOW_HEIGHT / 2, white); // Flèche Gauche
+        RenderUnicode(renderer, "\u2193", 3 * WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 + 60, white); // Flèche Bas
+        RenderUnicode(renderer, "\u2192", 3 * WINDOW_WIDTH / 4 + 60, WINDOW_HEIGHT / 2, white); // Flèche Droite
+
+        RenderText(renderer, "ESPACE pour continuer", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 300, white);
+
+        SDL_RenderPresent(renderer);
+
+        // Gestion des événements
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                running = false;
+                break;
+            }
+            if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_SPACE) {
+                    running = false; // Quitte la boucle lorsque Espace est pressée
+                }
+            }
+        }
+        SDL_Delay(16); // Pour limiter le CPU à environ 60 FPS
+    }
 }
+
 

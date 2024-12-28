@@ -54,7 +54,7 @@ void DisplayCountdownNcurses() {
         clear();
         int rows, cols;
         getmaxyx(stdscr, rows, cols);
-        mvprintw(rows / 2, (cols - strlen("Commence dans: X")) / 2, "Commence dans: %d", i);
+        mvprintw(rows / 2, (cols - strlen("X")) / 2, "%d", i);
         refresh();
         usleep(1000000);
     }
@@ -190,16 +190,28 @@ void DisplayModeDeJeuNcurses(int selectedOption) {
     mvprintw(middleY - 2, middleX - strlen("Selectionnez le mode de jeu") / 2, "Selectionnez le mode de jeu");
 
     // Affichage des options avec surbrillance sur l'option sélectionnée
-    if (selectedOption == 1) {
+    if (selectedOption == 0) {
         attron(A_REVERSE);  // Activer la surbrillance
-        mvprintw(middleY, middleX - strlen("2 points gagnants") / 2, "2 points gagnants");
+        mvprintw(middleY, middleX - strlen("Bo3") / 2, "Bo3");
         attroff(A_REVERSE);  // Désactiver la surbrillance
-        mvprintw(middleY + 1, middleX - strlen("3 points gagnants") / 2, "3 points gagnants");
-    } else {
-        mvprintw(middleY, middleX - strlen("2 points gagnants") / 2, "2 points gagnants");
+        mvprintw(middleY + 1, middleX - strlen("Bo5") / 2, "Bo5");
+        mvprintw(middleY + 2, middleX +1 - strlen("Retour") / 2, "Retour");
+        mvprintw(middleY + 4, middleX - strlen("Le premier a 2 points gagne") / 2, "Le premier a 2 points gagne");
+    } else if (selectedOption == 1) {
+        mvprintw(middleY, middleX - strlen("Bo3") / 2, "Bo3");
         attron(A_REVERSE);
-        mvprintw(middleY + 1, middleX - strlen("3 points gagnants") / 2, "3 points gagnants");
+        mvprintw(middleY + 1, middleX - strlen("Bo5") / 2, "Bo5");
         attroff(A_REVERSE);
+        mvprintw(middleY + 2, middleX +1 - strlen("Retour") / 2, "Retour");
+        mvprintw(middleY + 4, middleX - strlen("Le premier a 3 points gagne") / 2, "Le premier a 3 points gagne");
+
+    }else{
+        mvprintw(middleY, middleX - strlen("Bo3") / 2, "Bo3");
+        mvprintw(middleY + 1, middleX - strlen("Bo5") / 2, "Bo5");
+        attron(A_REVERSE);
+        mvprintw(middleY + 2, middleX +1 - strlen("Retour") / 2, "Retour");
+        attroff(A_REVERSE);
+        mvprintw(middleY + 4, middleX - strlen("Retour au menu principal") / 2, "Retour au menu principal");
     }
 
     refresh();  // Actualiser l'affichage
@@ -207,9 +219,9 @@ void DisplayModeDeJeuNcurses(int selectedOption) {
 
 // Fonction pour gerer les evenements du mode de jeu
 int HandleModeDeJeuEventsNcurses() {
-    int choice = 1;
+    int choice = 0;
     int quit = 0;
-    int selectedOption = 1;
+    int selectedOption = 0;
 
     // Premier affichage du menu
     DisplayModeDeJeuNcurses(selectedOption);
@@ -219,11 +231,16 @@ int HandleModeDeJeuEventsNcurses() {
 
         switch (ch) {
             case KEY_UP:
-            case KEY_DOWN:
                 // Alterner entre les choix
-                selectedOption = !selectedOption;
+                selectedOption = (selectedOption - 1 + 3) % 3;
 
                 // Réafficher le menu avec l'option sélectionnée
+                DisplayModeDeJeuNcurses(selectedOption);
+                break;
+            case KEY_DOWN:
+                // Aller vers le choix suivant (circulaire)
+                selectedOption = (selectedOption + 1) % 3;
+                // Réafficher l'écran en fonction du choix
                 DisplayModeDeJeuNcurses(selectedOption);
                 break;
             case 10:  // Touche 'Enter'
@@ -349,7 +366,7 @@ void DisplayControlsNcurses() {
     mvprintw(middleY, 3 * middleX / 2, "v");
     mvprintw(middleY, 3 * middleX / 2 + 5, ">");
 
-    mvprintw(middleY + 10, middleX - (strlen("Appuyez sur ESPACE pour commencer") / 2), "Appuyez sur ESPACE pour commencer");
+    mvprintw(middleY + 10, middleX - (strlen("ESPACE pour continuer") / 2), "ESPACE pour continuer");
 
     refresh(); // Actualiser l'affichage
 
