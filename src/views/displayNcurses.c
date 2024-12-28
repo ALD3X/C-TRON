@@ -52,14 +52,19 @@ void InitColors() {
 void DisplayCountdownNcurses() {
     for (int i = 3; i > 0; i--) {
         clear();
-        printw("Commence dans: %d", i);
+        int rows, cols;
+        getmaxyx(stdscr, rows, cols);
+        mvprintw(rows / 2, (cols - strlen("Commence dans: X")) / 2, "Commence dans: %d", i);
         refresh();
         usleep(1000000);
     }
     clear();
-    printw("C'est parti !");
+    int rows, cols;
+    getmaxyx(stdscr, rows, cols);
+    mvprintw(rows / 2, (cols - strlen("C'est parti !")) / 2, "C'est parti !");
     refresh();
     usleep(1000000);
+    clear();
 }
 
 // ==============================
@@ -68,38 +73,44 @@ void DisplayCountdownNcurses() {
 
 // Fonction pour dessiner la carte avec ncurses
 void DrawNcurses(DisplayContext *display, Map *map) {
+    int maxRows, maxCols;
+    getmaxyx(stdscr, maxRows, maxCols); // Obtenir la taille du terminal
+
+    int startRow = (maxRows - Rows) / 2;
+    int startCol = (maxCols - Cols) / 2;
+
     for (int i = 0; i < Rows; i++) {
         for (int j = 0; j < Cols; j++) {
             int gridValue = map->Grille[i][j];
             switch (gridValue) {
                 case MUR: 
                     attron(COLOR_PAIR(1));
-                    mvaddch(i, j, ' ');
+                    mvaddch(startRow + i, startCol + j, ' ');
                     attroff(COLOR_PAIR(1));
                     break;
                 case JOUEUR_1: 
                     attron(COLOR_PAIR(2));
-                    mvaddch(i, j, ' ');
+                    mvaddch(startRow + i, startCol + j, ' ');
                     attroff(COLOR_PAIR(2));
                     break;
                 case JOUEUR_2: 
                     attron(COLOR_PAIR(3));
-                    mvaddch(i, j, ' ');
+                    mvaddch(startRow + i, startCol + j, ' ');
                     attroff(COLOR_PAIR(3));
                     break;
                 case LIGNE_JOUEUR_1: 
                     attron(COLOR_PAIR(4));
-                    mvaddch(i, j, ' ');
+                    mvaddch(startRow + i, startCol + j, ' ');
                     attroff(COLOR_PAIR(4));
                     break;
                 case LIGNE_JOUEUR_2: 
                     attron(COLOR_PAIR(5));
-                    mvaddch(i, j, ' ');
+                    mvaddch(startRow + i, startCol + j, ' ');
                     attroff(COLOR_PAIR(5));
                     break;
                 default: 
                     attron(COLOR_PAIR(6));
-                    mvaddch(i, j, ' ');
+                    mvaddch(startRow + i, startCol + j, ' ');
                     attroff(COLOR_PAIR(6));
                     break;
             }
@@ -119,18 +130,18 @@ void DisplayMenuNcurses(int selectedOption) {
     int middleY = LINES / 2;
 
     // Afficher le titre
-    mvprintw(middleY - 2, middleX - 5, "Tron Game");
+    mvprintw(middleY - 2, middleX - strlen("Tron Game") / 2, "Tron Game");
 
     // Affichage des options avec surbrillance sur l'option sélectionnée
     if (selectedOption == 1) {
         attron(A_REVERSE);  // Activer la surbrillance
-        mvprintw(middleY, middleX - 6, "Jouer");
+        mvprintw(middleY, middleX - strlen("Jouer") / 2, "Jouer");
         attroff(A_REVERSE);  // Désactiver la surbrillance
-        mvprintw(middleY + 1, middleX - 7, "Quitter");
+        mvprintw(middleY + 1, middleX - strlen("Quitter") / 2, "Quitter");
     } else {
-        mvprintw(middleY, middleX - 6, "Jouer");
+        mvprintw(middleY, middleX - strlen("Jouer") / 2, "Jouer");
         attron(A_REVERSE);
-        mvprintw(middleY + 1, middleX - 7, "Quitter");
+        mvprintw(middleY + 1, middleX - strlen("Quitter") / 2, "Quitter");
         attroff(A_REVERSE);
     }
 
@@ -176,18 +187,18 @@ void DisplayModeDeJeuNcurses(int selectedOption) {
     int middleY = LINES / 2;
 
     // Afficher le titre
-    mvprintw(middleY - 2, middleX - 5, "Selectionnez le mode de jeu");
+    mvprintw(middleY - 2, middleX - strlen("Selectionnez le mode de jeu") / 2, "Selectionnez le mode de jeu");
 
     // Affichage des options avec surbrillance sur l'option sélectionnée
     if (selectedOption == 1) {
         attron(A_REVERSE);  // Activer la surbrillance
-        mvprintw(middleY, middleX - 6, "2 points gagnants");
+        mvprintw(middleY, middleX - strlen("2 points gagnants") / 2, "2 points gagnants");
         attroff(A_REVERSE);  // Désactiver la surbrillance
-        mvprintw(middleY + 1, middleX - 7, "3 points gagnants");
+        mvprintw(middleY + 1, middleX - strlen("3 points gagnants") / 2, "3 points gagnants");
     } else {
-        mvprintw(middleY, middleX - 6, "2 points gagnants");
+        mvprintw(middleY, middleX - strlen("2 points gagnants") / 2, "2 points gagnants");
         attron(A_REVERSE);
-        mvprintw(middleY + 1, middleX - 7, "3 points gagnants");
+        mvprintw(middleY + 1, middleX - strlen("3 points gagnants") / 2, "3 points gagnants");
         attroff(A_REVERSE);
     }
 
@@ -234,9 +245,8 @@ void DisplayEndScreenNcurses(GameState gameState, Player *player1, Player *playe
     erase();  // Effacer l'écran
 
     const char* winnerText;
-    if (gameState == PLAYER1_WON) winnerText = "Joueur 1 a gagne !";
-    if (gameState == PLAYER2_WON) winnerText = "Joueur 2 a gagne !";
-
+    if (gameState == PLAYER1_WON) winnerText = "Joueur 1 gagne la partie !";
+    if (gameState == PLAYER2_WON) winnerText = "Joueur 2 gagne la partie !";
     
     int middleX = COLS / 2;
     int middleY = LINES / 2;
@@ -251,17 +261,15 @@ void DisplayEndScreenNcurses(GameState gameState, Player *player1, Player *playe
     // Affichage des options avec surbrillance sur l'option sélectionnée
     if (selectedOption == 1) {
         attron(A_REVERSE);  // Activer la surbrillance
-        mvprintw(middleY, middleX - 6, "rejouer");
+        mvprintw(middleY, middleX - strlen("Rejouer") / 2, "Rejouer");
         attroff(A_REVERSE);  // Désactiver la surbrillance
-        mvprintw(middleY + 1, middleX - 7, "retour au Menu");
+        mvprintw(middleY + 1, middleX - strlen("Retour au Menu") / 2, "Retour au Menu");
     } else {
-        mvprintw(middleY, middleX - 6, "rejouer");
+        mvprintw(middleY, middleX - strlen("Rejouer") / 2, "Rejouer");
         attron(A_REVERSE);
-        mvprintw(middleY + 1, middleX - 7, "retour au Menu");
+        mvprintw(middleY + 1, middleX - strlen("Retour au Menu") / 2, "Retour au Menu");
         attroff(A_REVERSE);
     }
-
-
 
     refresh();  // Actualiser l'affichage
 }
@@ -328,19 +336,23 @@ void DisplayControlsNcurses() {
     int middleY = LINES / 2;
 
     // Affichage des touches pour le joueur 1
-    mvprintw(middleY - 10, middleX / 2 - 5, "Joueur 1");
+    mvprintw(middleY - 10, middleX / 2 - (strlen("Joueur 1") / 2), "Joueur 1");
     mvprintw(middleY - 5, middleX / 2, "Z");
     mvprintw(middleY, middleX / 2 - 5, "Q");
     mvprintw(middleY, middleX / 2, "S");
     mvprintw(middleY, middleX / 2 + 5, "D");
 
     // Affichage des touches pour le joueur 2
-    mvprintw(middleY - 10, 3 * middleX / 2 - 5, "Joueur 2");
+    mvprintw(middleY - 10, 3 * middleX / 2 - (strlen("Joueur 2") / 2), "Joueur 2");
     mvprintw(middleY - 5, 3 * middleX / 2, "^");
     mvprintw(middleY, 3 * middleX / 2 - 5, "<");
     mvprintw(middleY, 3 * middleX / 2, "v");
     mvprintw(middleY, 3 * middleX / 2 + 5, ">");
 
+    mvprintw(middleY + 10, middleX - (strlen("Appuyez sur ESPACE pour commencer") / 2), "Appuyez sur ESPACE pour commencer");
+
     refresh(); // Actualiser l'affichage
-    usleep(5000000); // Pause de 5 secondes
+
+    // Attendre que l'utilisateur appuie sur ESPACE
+    int ch; while ((ch = getch()) != ' ') {}
 }
