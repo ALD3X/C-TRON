@@ -66,7 +66,7 @@ make clean
 Le projet dépend des bibliothèques suivantes :
 
 - SDL2
-- SDL2_ttf
+- SDL2_ttf (`sudo apt-get update && sudo apt-get install libsdl2-ttf-dev`)
 - ncurses
 
 ## Sources
