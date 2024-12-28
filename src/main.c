@@ -5,6 +5,10 @@
 #include "../include/input.h"
 #include <stdio.h>
 
+// ==============================
+// Section: Fonction principale
+// ==============================
+
 // Fonction principale du programme
 int main() {
     DisplayContext display;

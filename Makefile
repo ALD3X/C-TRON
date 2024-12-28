@@ -7,15 +7,22 @@ SDL_TTF_FLAGS = -lSDL2_ttf
 MATH_FLAGS = -lm
 
 # Répertoires
+CONTROLLERS_DIR = src/controllers
+VUE_DIR = src/views
+MODELS_DIR = src/models
+UTILS_DIR = src/utils
 SRC_DIR = src
-VUE_DIR = vue
 INC_DIR = include
 BUILD_DIR = build
 
 # Fichiers objets
 SRC_OBJ = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(wildcard $(SRC_DIR)/*.c))
-VUE_OBJ = $(patsubst $(VUE_DIR)/%.c, $(BUILD_DIR)/%.o, $(wildcard $(VUE_DIR)/*.c))
-OBJ = $(SRC_OBJ) $(VUE_OBJ)
+CONTROLLERS_OBJ = $(patsubst $(CONTROLLERS_DIR)/%.c, $(BUILD_DIR)/%.o, $(wildcard $(CONTROLLERS_DIR)/*.c))
+MODELS_OBJ = $(patsubst $(MODELS_DIR)/%.c, $(BUILD_DIR)/%.o, $(wildcard $(MODELS_DIR)/*.c))
+VIEWS_OBJ = $(patsubst $(VUE_DIR)/%.c, $(BUILD_DIR)/%.o, $(wildcard $(VUE_DIR)/*.c))
+UTILS_OBJ = $(patsubst $(UTILS_DIR)/%.c, $(BUILD_DIR)/%.o, $(wildcard $(UTILS_DIR)/*.c))
+
+OBJ = $(MODELS_OBJ) $(CONTROLLERS_OBJ) $(VIEWS_OBJ) $(SRC_OBJ) $(UTILS_OBJ)
 
 # Nom de l'exécutable
 TARGET = $(BUILD_DIR)/tron_game
@@ -33,7 +40,19 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(BUILD_DIR)/%.o: $(CONTROLLERS_DIR)/%.c
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/%.o: $(MODELS_DIR)/%.c
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
 $(BUILD_DIR)/%.o: $(VUE_DIR)/%.c
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/%.o: $(UTILS_DIR)/%.c
 	@mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 

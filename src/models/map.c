@@ -1,4 +1,4 @@
-#include "map.h"
+#include "../include/map.h"
 #include "../include/elements.h"
 #include "../include/utils.h"
 #include "../include/player.h"

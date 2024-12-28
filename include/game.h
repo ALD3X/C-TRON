@@ -2,10 +2,10 @@
 #define GAME_H
 
 typedef enum {
-    GAME_ONGOING,
-    PLAYER1_WON,
-    PLAYER2_WON,
-    GAME_WAITING
+    GAME_ONGOING, // jeu en cours
+    PLAYER1_WON,  // joueur 1 a gagne
+    PLAYER2_WON,  // joueur 2 a gagne
+    GAME_WAITING  // jeu en attente
 } GameState;
 
 #include "display.h"   

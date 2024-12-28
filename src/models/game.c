@@ -81,23 +81,35 @@ void DisplayGameState(const Player *player1, const Player *player2) {
 // ==============================
 // Section: Gestion du mode de jeu
 // ==============================
-GameState ModeDeJeu(int mode, Player *player1, Player *player2, Map *map, DisplayContext *display) {
-    int nb = (mode == 1) ? 2 : 3;
 
-    // Affichage des contrôles et du compte à rebours
+// Gere le mode de jeu
+GameState ModeDeJeu(int mode, Player *player1, Player *player2, Map *map, DisplayContext *display) {
+
+    int nb;
+    // Verification du mode de jeu
+    if(mode == 0){
+        nb = 2;
+    }
+    else if(mode == 1){
+        nb = 3;
+    }
+    else return GAME_WAITING;
+    
+
+    // Affichage des controles et du compte a rebours
     if (display->type == DISPLAY_SDL) {
-        displayControls(display->renderer);
-        displayCountdownSDL(display->renderer);
+        DisplayControlsSDL(display->renderer);
+        DisplayCountdownSDL(display->renderer);
     } else {
-        displayControlsNcurses();
-        displayCountdownNcurses();
+        DisplayControlsNcurses();
+        DisplayCountdownNcurses();
     }
 
     // Boucle principale du jeu
     while (GetPlayerScore(player1) < nb && GetPlayerScore(player2) < nb) {
         DrawMap(display, map);
 
-        // Gestion des entrées et des mouvements selon le type d'affichage
+        // Gestion des entrees et des mouvements selon le type d'affichage
         if (display->type == DISPLAY_SDL) {
             HandlePlayerInputSDL(player1, player2, map);
         } else {
@@ -107,7 +119,7 @@ GameState ModeDeJeu(int mode, Player *player1, Player *player2, Map *map, Displa
         UpdatePlayerMovement(player1, map);
         UpdatePlayerMovement(player2, map);
 
-        // Vérification des scores et gestion des éliminations
+        // Verification des scores et gestion des eliminations
         for (int i = 0; i < 2; i++) {
             Player *current = (i == 0) ? player1 : player2;
             Player *opponent = (i == 0) ? player2 : player1;
@@ -117,20 +129,20 @@ GameState ModeDeJeu(int mode, Player *player1, Player *player2, Map *map, Displa
                 RestartGame(player1, player2, map);
 
                 if (display->type == DISPLAY_SDL) {
-                    displayScore(display->renderer, player1, player2);
+                    DisplayScoreSDL(display->renderer, player1, player2);
                     if (GetPlayerScore(player1) == nb) return PLAYER1_WON;
                     if (GetPlayerScore(player2) == nb) return PLAYER2_WON;
-                    displayCountdownSDL(display->renderer);
+                    DisplayCountdownSDL(display->renderer);
                 } else {
-                    displayScoreNcurses(player1, player2);
+                    DisplayScoreNcurses(player1, player2);
                     if (GetPlayerScore(player1) == nb) return PLAYER1_WON;
                     if (GetPlayerScore(player2) == nb) return PLAYER2_WON;
-                    displayCountdownNcurses();
+                    DisplayCountdownNcurses();
                 }
             }
         }
 
-        // Rafraîchissement de l'affichage SDL
+        // Rafraichissement de l'affichage SDL
         if (display->type == DISPLAY_SDL) {
             SDL_RenderPresent(display->renderer);
         }
@@ -142,6 +154,8 @@ GameState ModeDeJeu(int mode, Player *player1, Player *player2, Map *map, Displa
 // ==============================
 // Section: Gestion de la boucle de jeu
 // ==============================
+
+// Gere la boucle de jeu
 void HandleGameLoop(DisplayContext *display, Player *player1, Player *player2, Map *map) {
     int running = 1;
     GameState state = GAME_WAITING;
@@ -150,12 +164,12 @@ void HandleGameLoop(DisplayContext *display, Player *player1, Player *player2, M
     while (running) {
         int choice = -1;
 
-        // Gestion de l'état "GAME_WAITING"
+        // Gestion de l'etat "GAME_WAITING"
         if (state == GAME_WAITING) {
             if (display->type == DISPLAY_SDL) {
-                choice = handleMenuEvents(display->renderer);
+                choice = HandleMenuEventsSDL(display->renderer);
             } else {
-                choice = handleMenuEventsNcurses();
+                choice = HandleMenuEventsNcurses();
             }
 
             if (choice == 0) {
@@ -163,21 +177,22 @@ void HandleGameLoop(DisplayContext *display, Player *player1, Player *player2, M
                 exit(EXIT_SUCCESS);
             } else {
                 state = GAME_ONGOING;
-                modeDeJeu = (display->type == DISPLAY_SDL) ? handleModeDeJeuEvents(display->renderer, display) : handleModeDeJeuEventsNcurses();
+                modeDeJeu = (display->type == DISPLAY_SDL) ? HandleModeDeJeuEventsSDL(display->renderer, display) : HandleModeDeJeuEventsNcurses();
             }
         }
 
-        // Gestion de l'état "GAME_ONGOING"
+        // Gestion de l'etat "GAME_ONGOING"
         if (modeDeJeu != -1 && state == GAME_ONGOING) {
             state = ModeDeJeu(modeDeJeu, player1, player2, map, display);
+            modeDeJeu = -1;
         }
 
-        // Gestion de l'écran de fin
+        // Gestion de l'ecran de fin
         if (state != GAME_ONGOING && state != GAME_WAITING) {
             if (display->type == DISPLAY_SDL) {
-                choice = handleEndScreenEvents(display->renderer, state, player1, player2, display);
+                choice = HandleEndScreenEventsSDL(display->renderer, state, player1, player2, display);
             } else {
-                choice = handleEndScreenEventsNcurses(state, player1, player2);
+                choice = HandleEndScreenEventsNcurses(state, player1, player2);
             }
 
             if (choice == 1) {

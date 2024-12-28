@@ -17,105 +17,112 @@ typedef struct {
     SDL_Renderer* renderer;  // Renderer SDL
 } DisplayContext;
 
-
 // ====================================================
 //                    FONCTIONS
 // ====================================================
 
-// Initialise l'affichage
+// Initialiser l'affichage
 void InitDisplay(DisplayContext *display);
 
-// Termine l'affichage
+// Terminer l'affichage
 void EndDisplay(DisplayContext *display);
 
-// Dessine la carte
+// Dessiner la carte
 void DrawMap(DisplayContext *display, Map *map);
 
 // ====================================================
 //              FONCTIONS SPECIFIQUES A SDL
 // ====================================================
 
-// Initialise SDL
+// Initialiser SDL
 bool InitSDL(DisplayContext *display);
 
-// Termine SDL
+// Terminer SDL
 void EndSDL(DisplayContext *display);
 
-// Affiche du texte avec SDL
-void renderText(SDL_Renderer *renderer, const char* text, int x, int y, SDL_Color color);
+// Rendre du texte
+void RenderText(SDL_Renderer *renderer, const char* text, int x, int y, SDL_Color color);
 
-// Affiche le compte a rebours avec SDL
-void displayCountdownSDL(SDL_Renderer *renderer);
+// Afficher le compte a rebours SDL
+void DisplayCountdownSDL(SDL_Renderer *renderer);
 
-// Dessine une cellule avec SDL
+// Dessiner une cellule
 void DrawCell(SDL_Renderer* renderer, int i, int j, int cellWidth, int cellHeight, int cellType);
 
-// Recupere la couleur d'une cellule
+// Obtenir la couleur d'une cellule
 SDL_Color GetCellColor(int cellType);
 
-// Dessine la carte avec SDL
+// Dessiner avec SDL
 void DrawSDL(SDL_Renderer* renderer, Map *map, int rows, int cols);
 
-// Affiche l'ecran de fin avec SDL
-void displayEndScreen(SDL_Renderer *renderer, GameState gameState, Player *player1, Player *player2, int selectedOption);
+// Afficher l'ecran de fin SDL
+void DisplayEndScreenSDL(SDL_Renderer *renderer, GameState gameState, Player *player1, Player *player2, int selectedOption);
 
-// Gere les evenements de l'ecran de fin
-int handleEndScreenEvents(SDL_Renderer *renderer, GameState gameState, Player *player1, Player *player2, DisplayContext *display);
+// Gerer les evenements de l'ecran de fin SDL
+int HandleEndScreenEventsSDL(SDL_Renderer *renderer, GameState gameState, Player *player1, Player *player2, DisplayContext *display);
 
-// Affiche le menu avec SDL
-void displayMenuSDL(SDL_Renderer *renderer, int selectedOption);
+// Afficher le menu SDL
+void DisplayMenuSDL(SDL_Renderer *renderer, int selectedOption);
 
-// Gere les evenements du menu
-int handleMenuEvents(SDL_Renderer *renderer);
+// Gerer les evenements du menu SDL
+int HandleMenuEventsSDL(SDL_Renderer *renderer);
 
-// Affiche le score des joueurs
-void displayScore(SDL_Renderer *renderer, Player *player1, Player *player2);
+// Afficher le score SDL
+void DisplayScoreSDL(SDL_Renderer *renderer, Player *player1, Player *player2);
 
-// Affiche la selection du mode de jeu avec SDL
-void displayModeDeJeuSDL(SDL_Renderer *renderer, int selectedOption);
+// Afficher le mode de jeu SDL
+void DisplayModeDeJeuSDL(SDL_Renderer *renderer, int selectedOption);
 
-// Gere les evenements de la selection du mode de jeu
-int handleModeDeJeuEvents(SDL_Renderer *renderer, DisplayContext *display);
+// Gerer les evenements du mode de jeu SDL
+int HandleModeDeJeuEventsSDL(SDL_Renderer *renderer, DisplayContext *display);
 
-// Affiche les touches des joueurs
-void displayControls(SDL_Renderer *renderer);
+// Afficher les controles SDL
+void DisplayControlsSDL(SDL_Renderer *renderer);
 
-void renderUnicode(SDL_Renderer *renderer, const char* text, int x, int y, SDL_Color color);
-
+// Rendre du texte Unicode
+void RenderUnicode(SDL_Renderer *renderer, const char* text, int x, int y, SDL_Color color);
 
 // ====================================================
 //              FONCTIONS SPECIFIQUES A NCURSES
 // ====================================================
 
-// Initialise ncurses
+// Initialiser Ncurses
 void InitNcurses();
 
-// Termine ncurses
+// Terminer Ncurses
 void EndNcurses();
 
-// Dessine la carte avec ncurses
+// Dessiner avec Ncurses
 void DrawNcurses(DisplayContext *display, Map *map);
 
-// Initialise les couleurs avec ncurses
-void InitColors(); 
+// Initialiser les couleurs
+void InitColors();
 
-// Affiche le compte a rebours avec ncurses
-void displayCountdownNcurses();
+// Afficher le compte a rebours Ncurses
+void DisplayCountdownNcurses();
 
-// Affiche le menu avec ncurses
-void displayMenuNcurses(int selectedOption);
+// Afficher le menu Ncurses
+void DisplayMenuNcurses(int selectedOption);
 
-int handleMenuEventsNcurses();
+// Gerer les evenements du menu Ncurses
+int HandleMenuEventsNcurses();
 
-void displayModeDeJeuNcurses(int selectedOption);
+// Afficher le mode de jeu Ncurses
+void DisplayModeDeJeuNcurses(int selectedOption);
 
-int handleModeDeJeuEventsNcurses();
+// Gerer les evenements du mode de jeu Ncurses
+int HandleModeDeJeuEventsNcurses();
 
-void displayEndScreenNcurses(GameState gameState, Player *player1, Player *player2, int selectedOption);
+// Afficher l'ecran de fin Ncurses
+void DisplayEndScreenNcurses(GameState gameState, Player *player1, Player *player2, int selectedOption);
 
-int handleEndScreenEventsNcurses(GameState gameState, Player *player1, Player *player2);
+// Gerer les evenements de l'ecran de fin Ncurses
+int HandleEndScreenEventsNcurses(GameState gameState, Player *player1, Player *player2);
 
-void displayScoreNcurses(Player *player1, Player *player2);
-void displayControlsNcurses();
+// Afficher le score Ncurses
+void DisplayScoreNcurses(Player *player1, Player *player2);
+
+// Afficher les controles Ncurses
+void DisplayControlsNcurses();
 
 #endif // DISPLAY_H

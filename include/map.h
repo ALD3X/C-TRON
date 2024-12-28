@@ -1,11 +1,11 @@
 #ifndef MAP_H
 #define MAP_H
 
-#define Rows 50
-#define Cols 50
+#define Rows 50 // Nombre de lignes
+#define Cols 50 // Nombre de colonnes
 
 typedef struct {
-    int Grille[Rows][Cols];
+    int Grille[Rows][Cols]; // Grille de la carte
 } Map;
 
 // ====================================================
