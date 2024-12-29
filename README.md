@@ -71,8 +71,9 @@ make clean
 ## Dépendances
 Le projet dépend des bibliothèques suivantes :
 
-- SDL2
-- SDL2_ttf (`sudo apt-get update && sudo apt-get install libsdl2-ttf-dev`)
+- SDL2         (`sudo apt-get update && sudo apt-get install libsdl2-dev`)
+- SDL2_ttf     (`sudo apt-get update && sudo apt-get install libsdl2-ttf-dev`)
+- SDL2_mix     (`sudo apt-get update && sudo apt-get install libsdl2-mixer-dev`)
 - ncurses
 
 ## Sources
