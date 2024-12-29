@@ -23,7 +23,5 @@
 // Ligne du joueur 2
 #define LIGNE_JOUEUR_2 (JOUEUR_2 * 2)
 
-// Obstacle
-#define OBSTACLE 5
 
 #endif // ELEMENTS_H

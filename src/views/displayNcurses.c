@@ -36,13 +36,17 @@ void EndNcurses() {
 // Fonction pour initialiser les couleurs
 void InitColors() {
     start_color();
+    
+
     init_pair(1, COLOR_WHITE, COLOR_WHITE);
-    init_pair(2, COLOR_RED, COLOR_RED);
-    init_pair(3, COLOR_GREEN, COLOR_GREEN);
-    init_pair(4, COLOR_YELLOW, COLOR_YELLOW);
+    init_pair(2, COLOR_RED, COLOR_RED);    // Rouge (standard)
+    init_pair(3, COLOR_YELLOW, COLOR_YELLOW); 
+    init_pair(4, COLOR_BLUE, COLOR_BLUE); // Bleu
     init_pair(5, COLOR_CYAN, COLOR_CYAN);
     init_pair(6, COLOR_BLACK, COLOR_BLACK);
 }
+
+
 
 // ==============================
 // Section: Fonctions d'affichage de compte a rebours
@@ -89,24 +93,24 @@ void DrawNcurses(DisplayContext *display, Map *map) {
                     attroff(COLOR_PAIR(1));
                     break;
                 case JOUEUR_1: 
-                    attron(COLOR_PAIR(2));
-                    mvaddch(startRow + i, startCol + j, ' ');
-                    attroff(COLOR_PAIR(2));
-                    break;
-                case JOUEUR_2: 
-                    attron(COLOR_PAIR(3));
-                    mvaddch(startRow + i, startCol + j, ' ');
-                    attroff(COLOR_PAIR(3));
-                    break;
-                case LIGNE_JOUEUR_1: 
                     attron(COLOR_PAIR(4));
                     mvaddch(startRow + i, startCol + j, ' ');
                     attroff(COLOR_PAIR(4));
                     break;
-                case LIGNE_JOUEUR_2: 
+                case JOUEUR_2: 
+                    attron(COLOR_PAIR(2));
+                    mvaddch(startRow + i, startCol + j, ' ');
+                    attroff(COLOR_PAIR(2));
+                    break;
+                case LIGNE_JOUEUR_1: 
                     attron(COLOR_PAIR(5));
                     mvaddch(startRow + i, startCol + j, ' ');
                     attroff(COLOR_PAIR(5));
+                    break;
+                case LIGNE_JOUEUR_2: 
+                    attron(COLOR_PAIR(3));
+                    mvaddch(startRow + i, startCol + j, ' ');
+                    attroff(COLOR_PAIR(3));
                     break;
                 default: 
                     attron(COLOR_PAIR(6));

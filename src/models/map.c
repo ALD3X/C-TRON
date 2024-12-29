@@ -1,7 +1,6 @@
 #include "../include/map.h"
 #include "../include/elements.h"
 #include "../include/utils.h"
-#include "../include/player.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -49,9 +48,7 @@ void DisplayMap(Map *map) {
 // Effacer une ligne sur la carte 
 void ClearLineOnMap(Map *map, int x, int y) {
     CheckMultiplePointers(map, map->Grille, NULL);
-    if (IsCoordinateValid(x, y)) {
-        map->Grille[x][y] = VIDE;
-    }
+    map->Grille[x][y] = VIDE;
 }
 
 
