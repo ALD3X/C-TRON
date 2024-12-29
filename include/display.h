@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "map.h"
 #include "player.h"
+#include <SDL2/SDL_mixer.h>
 
 typedef enum {
     DISPLAY_NCURSES,
