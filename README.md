@@ -6,14 +6,6 @@ Tron Game est un jeu multijoueur inspiré du film Tron, où deux joueurs s'affro
 
 Le projet est organisé de la manière suivante :
 
-### Fichiers principaux
-
-## Structure du projet
-
-Le projet est organisé de la manière suivante :
-
-### Fichiers principaux
-
 - #### `src/main.c`
 
 Le point d'entrée du programme. Il initialise le type d'affichage (SDL ou Ncurses), initialise le jeu et gère la boucle principale du jeu.
@@ -74,13 +66,16 @@ Le projet dépend des bibliothèques suivantes :
 - SDL2         (`sudo apt-get update && sudo apt-get install libsdl2-dev`)
 - SDL2_ttf     (`sudo apt-get update && sudo apt-get install libsdl2-ttf-dev`)
 - SDL2_mix     (`sudo apt-get update && sudo apt-get install libsdl2-mixer-dev`)
-- ncurses
+- ncurses      (`sudo apt-get update && sudo apt-get install libncurses5-dev libncursesw5-dev`)
 
 ## Sources
 
 - Police d'écriture : 
     - [Google Font - Arial](https://fonts.google.com/?query=Arial)
     - [1001 Font - TR2N](https://www.1001fonts.com/tr2n-font.html)
+
+- Sons :
+    - [OpenGameArt](https://opengameart.org/)
 
 - Unicode
     - [Wikipedia - Table des Unicodes](https://fr.wikipedia.org/wiki/Table_des_caractères_Unicode/U2190)
