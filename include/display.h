@@ -82,6 +82,18 @@ void DisplayControlsSDL(SDL_Renderer *renderer);
 // Rendre du texte Unicode
 void RenderUnicode(SDL_Renderer *renderer, const char* text, int x, int y, SDL_Color color);
 
+// Charger une musique
+Mix_Music* LoadMusic(const char* filePath);
+
+// Charger un son
+Mix_Chunk* LoadSound(const char* filePath);
+
+// Jouer une musique
+void PlayMusic(Mix_Music* music, int loops, int volume);
+
+// Jouer un son
+void PlaySound(Mix_Chunk* sound, int volume);
+
 // ====================================================
 //              FONCTIONS SPECIFIQUES A NCURSES
 // ====================================================

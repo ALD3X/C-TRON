@@ -121,6 +121,10 @@ GameState ModeDeJeu(int mode, Player *player1, Player *player2, Map *map, Displa
             Player *opponent = (i == 0) ? player2 : player1;
 
             if (!current->isAlive) {
+                // Son du crash
+                Mix_Chunk* sound_crash = LoadSound("assets/sounds/sound_crash.wav");
+                PlaySound(sound_crash, 3);
+
                 AddPlayerScore(opponent);
                 RestartGame(player1, player2, map);
 

@@ -5,11 +5,17 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 const int WINDOW_WIDTH = 1300;
 const int WINDOW_HEIGHT = 800;
+
+Mix_Music* music_menu;
+Mix_Music* music_fight;
+Mix_Music* music_victory;
+Mix_Chunk* sound_menu;
 
 // ==============================
 // Section: Initialisation et terminaison de SDL
@@ -19,6 +25,12 @@ const int WINDOW_HEIGHT = 800;
 bool InitSDL(DisplayContext *display) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         CheckSDLError(__LINE__);
+        return false;
+    }
+
+    // Initialiser SDL_mixer
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        fprintf(stderr, "Erreur SDL_mixer : %s\n", Mix_GetError());
         return false;
     }
 
@@ -53,6 +65,12 @@ bool InitSDL(DisplayContext *display) {
     // Désactiver le mouvement de la souris en dehors de la fenêtre
     SDL_SetRelativeMouseMode(SDL_TRUE); 
 
+    // Charger les sons
+    music_menu = LoadMusic("assets/sounds/music_menu.mp3");
+    music_fight = LoadMusic("assets/sounds/music_fight.mp3");
+    music_victory = LoadMusic("assets/sounds/music_victory.mp3");
+    sound_menu = LoadSound("assets/sounds/sound_menu.wav");
+
     return true;
 }
 
@@ -69,6 +87,8 @@ void EndSDL(DisplayContext *display) {
         display->window = NULL;
     }
 
+    Mix_CloseAudio();
+    Mix_Quit();
     TTF_Quit();
     SDL_Quit();
 }
@@ -153,6 +173,8 @@ void DisplayCountdownSDL(SDL_Renderer *renderer) {
 
     SDL_RenderPresent(renderer);
     SDL_Delay(1000);
+
+    PlayMusic(music_fight, -1, 3);
 }
 
 // Fonction pour afficher le score
@@ -253,6 +275,8 @@ int HandleEndScreenEventsSDL(SDL_Renderer *renderer, GameState gameState, Player
     // Premier affichage de l'écran de fin
     DisplayEndScreenSDL(renderer, gameState, player1, player2,selectedOption);
 
+    PlayMusic(music_victory, 0, 3);
+
     while (!quit) {
         SDL_WaitEvent(&event);
 
@@ -260,6 +284,7 @@ int HandleEndScreenEventsSDL(SDL_Renderer *renderer, GameState gameState, Player
             EndDisplay(display);
             exit(EXIT_SUCCESS);
         } else if (event.type == SDL_KEYDOWN) {
+            PlaySound(sound_menu, 3);
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
                 case SDLK_DOWN:
@@ -315,6 +340,8 @@ int HandleMenuEventsSDL(SDL_Renderer *renderer) {
     // Premier affichage du menu
     DisplayMenuSDL(renderer, selectedOption);
 
+    PlayMusic(music_menu, -1, 3);
+
     while (!quit) {
         SDL_WaitEvent(&event);
 
@@ -324,6 +351,7 @@ int HandleMenuEventsSDL(SDL_Renderer *renderer) {
         }
 
         if (event.type == SDL_KEYDOWN) {
+            PlaySound(sound_menu, 3);
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
                 case SDLK_DOWN:
@@ -402,6 +430,7 @@ int HandleModeDeJeuEventsSDL(SDL_Renderer *renderer, DisplayContext *display) {
         }
 
         if (event.type == SDL_KEYDOWN) {
+            PlaySound(sound_menu, 3);
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
                     // Aller vers le choix précédent (circulaire)
@@ -426,6 +455,36 @@ int HandleModeDeJeuEventsSDL(SDL_Renderer *renderer, DisplayContext *display) {
     }
 
     return choice;  // Retourner le choix effectué
+}
+
+// ==============================
+// Gestion du sons
+// ==============================
+
+// Fonction pour charger une musique
+Mix_Music* LoadMusic(const char* filePath) {
+    Mix_Music* music = Mix_LoadMUS(filePath);
+    if (!music) {fprintf(stderr, "Erreur lors du chargement de la musique : %s\n", Mix_GetError());}
+    return music;
+}
+
+// Fonction pour jouer une musique
+void PlayMusic(Mix_Music* music, int loops, int volume) {
+    Mix_PlayMusic(music, loops);
+    Mix_VolumeMusic(volume);
+}
+
+// Fonction pour charger un son
+Mix_Chunk* LoadSound(const char* filePath) {
+    Mix_Chunk* sound = Mix_LoadWAV(filePath);
+    if (!sound) {fprintf(stderr, "Erreur lors du chargement du son : %s\n", Mix_GetError());}
+    return sound;
+}
+
+// Fonction pour jouer un son
+void PlaySound(Mix_Chunk* sound, int volume) {
+    Mix_PlayChannel(-1, sound, 0); // -1 pour le premier canal libre
+    Mix_VolumeChunk(sound, volume);
 }
 
 // ==============================
@@ -479,5 +538,3 @@ void DisplayControlsSDL(SDL_Renderer *renderer) {
         SDL_Delay(16); // Pour limiter le CPU à environ 60 FPS
     }
 }
-
-

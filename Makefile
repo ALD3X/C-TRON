@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS = -Iinclude -Wall -g
 SDL_FLAGS = `sdl2-config --cflags --libs` 
 NCURSES_FLAGS = -lncurses
-SDL_TTF_FLAGS = -lSDL2_ttf
+SDL_ADDON_FLAGS = -lSDL2_ttf -lSDL2_mixer
 MATH_FLAGS = -lm
 
 # Répertoires
@@ -33,7 +33,7 @@ all: $(TARGET)
 # Règle pour créer l'exécutable
 $(TARGET): $(OBJ)
 	@mkdir -p $(BUILD_DIR)
-	$(CC) -o $@ $^ $(SDL_FLAGS) $(NCURSES_FLAGS) $(SDL_TTF_FLAGS) $(MATH_FLAGS)
+	$(CC) -o $@ $^ $(SDL_FLAGS) $(NCURSES_FLAGS) $(SDL_ADDON_FLAGS) $(MATH_FLAGS)
 
 # Règle pour créer les fichiers objets
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
