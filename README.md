@@ -97,4 +97,4 @@ Le projet dépend des bibliothèques suivantes :
     - Droite : Flèche droite
 
 ## Auteurs
-Ce projet a été développé par Anthony Dubart et Alexandre Dhainaut.
+Ce projet a été développé par Anthony et Alexandre.
